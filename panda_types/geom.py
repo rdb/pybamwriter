@@ -2,20 +2,31 @@
 from .typed_objects import TypedWritableReferenceCount
 from .panda_node import PandaNode
 
-class GeomVertexData(TypedWritableReferenceCount):
-    bam_type_name = "GeomVertexData"
-
+class GeomEnums:
     UH_client = 0
     UH_stream = 1
     UH_dynamic = 2
     UH_static = 3
+
+    NT_uint8 = 0
+    NT_uint16 = 1
+    NT_uint32 = 2
+
+    SM_uniform = 0
+    SM_smooth = 1
+    SM_flat_first_vertex = 2
+    SM_flat_last_vertex = 3
+
+
+class GeomVertexData(TypedWritableReferenceCount):
+    bam_type_name = "GeomVertexData"
 
     def __init__(self, name=""):
         super().__init__()
 
         self.name = name
         self.format = None
-        self.usage_hint = self.UH_static
+        self.usage_hint = GeomEnums.UH_static
         self.arrays = []
         self.transform_table = None
         self.transform_blend_table = None
@@ -38,13 +49,9 @@ class GeomVertexData(TypedWritableReferenceCount):
         manager.write_pointer(dg, self.transform_blend_table)
         manager.write_pointer(dg, self.slider_table)
 
+
 class Geom(TypedWritableReferenceCount):
     bam_type_name = "Geom"
-
-    SM_uniform = 0
-    SM_smooth = 1
-    SM_flat_first_vertex = 2
-    SM_flat_last_vertex = 3
 
     PT_none = 0
     PT_polygons = 1
@@ -57,7 +64,7 @@ class Geom(TypedWritableReferenceCount):
         self.data = None
         self.primitives = []
         self.primitive_type = self.PT_none
-        self.shade_model = self.SM_smooth
+        self.shade_model = GeomEnums.SM_smooth
         self.bounds_type = 0
 
     def write_datagram(self, manager, dg):
@@ -77,6 +84,34 @@ class Geom(TypedWritableReferenceCount):
 
         if manager.file_version >= (6, 19):
             dg.add_uint8(self.bounds_type)
+
+
+class GeomPrimitive(TypedWritableReferenceCount):
+    bam_type_name = "GeomPrimitive"
+
+    def __init__(self):
+        super().__init__()
+        self.shade_model = GeomEnums.SM_smooth
+        self.first_vertex = 0
+        self.num_vertices = 0
+        self.index_type = GeomEnums.NT_uint16
+        self.usage_hint = GeomEnums.UH_static
+        self.vertices = None
+        self.ends = None
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint8(self.shade_model);
+        dg.add_int32(self.first_vertex);
+        dg.add_int32(self.num_vertices);
+        dg.add_uint8(self.index_type);
+        dg.add_uint8(self.usage_hint);
+
+        #assert self.vertices is None or isinstance(self.vertices, GeomVertexArrayData)
+        manager.write_pointer(dg, self.vertices)
+        manager.write_pta(dg, self.ends)
+
 
 class GeomNode(PandaNode):
     bam_type_name = "GeomNode"

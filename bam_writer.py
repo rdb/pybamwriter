@@ -1,6 +1,7 @@
 from .datagram import Datagram
-from .panda_types import TypedWritable
+from .panda_types import TypedWritable, TypedWritableReferenceCount
 from collections import deque
+from array import array
 import sys
 
 BAM_VERSION = (6, 30)
@@ -11,6 +12,16 @@ BOC_adjunct = 2
 BOC_remove = 3
 BOC_file_data = 4
 
+class InternalName(TypedWritableReferenceCount):
+    __slots__ = 'name',
+
+    def __init__(self, name):
+        self.name = name
+
+    def write_datagram(self, manager, dg):
+        dg.add_string(self.name)
+
+
 class BamWriter(object):
     """ Reimplementation of Panda's BamWriter in Python. """
 
@@ -19,6 +30,8 @@ class BamWriter(object):
 
         self.next_object_id = 1
         self.long_object_id = False
+        self.next_pta_id = 1
+        self.long_pta_id = False
         self.next_type_index = 1
 
         self.file_version = BAM_VERSION
@@ -29,9 +42,10 @@ class BamWriter(object):
         self.types_written = set()
         self.objects_written = set()
 
-        # Map types to type IDs, objects to object IDs.
+        # Map types to type IDs, objects to object IDs, arrays to PTA IDs.
         self.type_map = {}
         self.object_map = {}
+        self.pta_map = {}
 
         # Objects queued up for writing to the stream.
         self.object_queue = deque()
@@ -120,6 +134,32 @@ class BamWriter(object):
 
             self.__write_object_id(packet, object_id)
 
+    def write_pta(self, packet, array_data):
+        if array_data is None:
+            # A zero for the PTA ID indicates a NULL pointer.  This is a
+            # special case.
+            self.__write_pta_id(packet, 0);
+
+            # Also write a 0 array length so that the bam reader can distinguish
+            # previously read arrays from NULL arrays.
+            packet.add_uint32(0)
+
+        else:
+            assert isinstance(array_data, array)
+
+            pta_id = self.pta_map.get(id(array_data))
+            if not pta_id:
+                # We have not written this PTA out yet.  Make an ID and do it now.
+                pta_id = self.next_pta_id
+                self.next_pta_id += 1
+                self.pta_map[id(array_data)] = pta_id
+
+                # We trust that the caller used the correct format code.
+                packet.add_uint32(len(array_data))
+                packet.data += array_data
+
+            self.__write_pta_id(packet, pta_id)
+
     def write_handle(self, packet, type):
         index = self.type_map.get(type)
         if not index:
@@ -147,18 +187,47 @@ class BamWriter(object):
             for base in bases:
                 self.write_handle(packet, base)
 
+    def write_internal_name(self, packet, string):
+        """ Convenience method for writing strings where InternalName objects
+        are expected. """
+
+        assert isinstance(string, str)
+
+        # We abuse self.object_map to also store a mapping from strings.
+        object_id = self.object_map.get(string)
+        if not object_id:
+            # We have not written this string out yet.  This means we must
+            # queue the object definition up for later.
+            object_id = self.__enqueue_object(InternalName(string))
+            self.object_map[string] = object_id
+
+        self.__write_object_id(packet, object_id)
+
     def __write_object_id(self, dg, object_id):
-        """ Writes the indicated object id to the datagram. """
+        """ Writes the indicated object ID to the datagram. """
 
         if self.long_object_id:
             dg.add_uint32(object_id)
 
         else:
             dg.add_uint16(object_id)
-            # Once we fill up our uint16, we write all object id's
+            # Once we fill up our uint16, we write all object ID's
             # thereafter with a uint32.
             if object_id == 0xffff:
                 self.long_object_id = True
+
+    def __write_pta_id(self, dg, pta_id):
+        """ Writes the indicated PTA ID to the datagram. """
+
+        if self.long_pta_id:
+            dg.add_uint32(pta_id)
+
+        else:
+            dg.add_uint16(pta_id)
+            # Once we fill up our uint16, we write all PTA ID's
+            # thereafter with a uint32.
+            if pta_id == 0xffff:
+                self.long_pta_id = True
 
     def __enqueue_object(self, object):
         """ Assigns an object ID to the object and queues it up

@@ -1,8 +1,8 @@
-
-from panda_types import  PandaNode, ModelRoot, TransformState, GeomNode
+from .panda_types import  PandaNode, ModelRoot, TransformState, GeomNode, GeomPrimitive
+from .datagram import Datagram
 
 if __name__ == '__main__':
-    from bam_writer import BamWriter
+    from .bam_writer import BamWriter
 
     model = ModelRoot("test")
 
