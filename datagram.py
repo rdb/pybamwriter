@@ -7,7 +7,8 @@ class Datagram(object):
 
     def __init__(self, stdfloat_double=False):
         self.data = bytearray()
-        self.stdfloat_format = '<d' if stdfloat_double else '<f'
+        self.stdfloat_format = 'd' if stdfloat_double else 'f'
+
 
     def add_bool(self, value):
         self.data.append(int(bool(value)))
@@ -43,16 +44,16 @@ class Datagram(object):
         self.data += pack('<d', value)
 
     def add_stdfloat(self, value):
-        self.data += pack(self.stdfloat_format, value)
+        self.data += pack('<' + self.stdfloat_format, value)
 
     def add_vec2(self, vec):
-        self.data += pack(self.stdfloat_format * 2, *vec)
+        self.data += pack('<' + self.stdfloat_format * 2, *vec)
 
     def add_vec3(self, vec):
-        self.data += pack(self.stdfloat_format * 3, *vec)
+        self.data += pack('<' + self.stdfloat_format * 3, *vec)
 
     def add_vec4(self, vec):
-        self.data += pack(self.stdfloat_format * 4, *vec)
+        self.data += pack('<' + self.stdfloat_format * 4, *vec)
 
     def add_string(self, value):
         if isinstance(value, str):

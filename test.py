@@ -1,5 +1,5 @@
-from panda_types import PandaNode, ModelRoot, TransformState, GeomNode
 
+from panda_types import  PandaNode, ModelRoot, TransformState, GeomNode
 
 if __name__ == '__main__':
     from bam_writer import BamWriter

@@ -1,5 +1,5 @@
-from datagram import Datagram
-from panda_types import TypedWritable
+from .datagram import Datagram
+from .panda_types import TypedWritable
 from collections import deque
 import sys
 
