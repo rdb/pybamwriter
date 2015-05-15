@@ -10,7 +10,69 @@ class TypedWritable(TypedObject):
         pass
 
 
-class RenderState(TypedWritable):
+class TypedWritableReferenceCount(TypedWritable):
+    bam_type_name = "TypedWritableReferenceCount"
+
+
+class Material(TypedWritableReferenceCount):
+    bam_type_name = "Material"
+
+    def __init__(self, name=""):
+        self.name = str(name)
+        self.ambient = None
+        self.diffuse = None
+        self.specular = None
+        self.emission = None
+        self.shininess = 0
+        self.local = False
+        self.twoside = False
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        flags = 0
+        if self.ambient:
+            flags |= 0x001
+        if self.diffuse:
+            flags |= 0x002
+        if self.specular:
+            flags |= 0x004
+        if self.emission:
+            flags |= 0x008
+        if self.local:
+            flags |= 0x010
+        if self.twoside:
+            flags |= 0x020
+
+        color = self.ambient or (1, 1, 1, 1)
+        dg.add_stdfloat(color[0])
+        dg.add_stdfloat(color[1])
+        dg.add_stdfloat(color[2])
+        dg.add_stdfloat(color[3])
+
+        color = self.diffuse or (1, 1, 1, 1)
+        dg.add_stdfloat(color[0])
+        dg.add_stdfloat(color[1])
+        dg.add_stdfloat(color[2])
+        dg.add_stdfloat(color[3])
+
+        color = self.specular or (0, 0, 0, 1)
+        dg.add_stdfloat(color[0])
+        dg.add_stdfloat(color[1])
+        dg.add_stdfloat(color[2])
+        dg.add_stdfloat(color[3])
+
+        color = self.emission or (0, 0, 0, 1)
+        dg.add_stdfloat(color[0])
+        dg.add_stdfloat(color[1])
+        dg.add_stdfloat(color[2])
+        dg.add_stdfloat(color[3])
+
+        dg.add_stdfloat(self.shininess)
+        dg.add_int32(flags)
+
+
+class RenderState(TypedWritableReferenceCount):
     bam_type_name = "RenderState"
 
     def write_datagram(self, manager, dg):
@@ -22,7 +84,7 @@ class RenderState(TypedWritable):
 RenderState.empty = RenderState()
 
 
-class TransformState(TypedWritable):
+class TransformState(TypedWritableReferenceCount):
     bam_type_name = "TransformState"
 
     def __init__(self):
@@ -84,7 +146,7 @@ class TransformState(TypedWritable):
 TransformState.identity = TransformState()
 
 
-class RenderEffects(TypedWritable):
+class RenderEffects(TypedWritableReferenceCount):
     bam_type_name = "RenderEffects"
 
     def write_datagram(self, manager, dg):
@@ -96,7 +158,7 @@ class RenderEffects(TypedWritable):
 RenderEffects.empty = RenderEffects()
 
 
-class PandaNode(TypedWritable):
+class PandaNode(TypedWritableReferenceCount):
     bam_type_name = "PandaNode"
 
     def __init__(self, name=""):
