@@ -45,6 +45,15 @@ class Datagram(object):
     def add_stdfloat(self, value):
         self.data += pack(self.stdfloat_format, value)
 
+    def add_vec2(self, vec):
+        self.data += pack(self.stdfloat_format * 2, *vec)
+
+    def add_vec3(self, vec):
+        self.data += pack(self.stdfloat_format * 3, *vec)
+
+    def add_vec4(self, vec):
+        self.data += pack(self.stdfloat_format * 4, *vec)
+
     def add_string(self, value):
         if isinstance(value, str):
             value = value.encode('utf-8')

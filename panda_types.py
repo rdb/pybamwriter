@@ -44,29 +44,10 @@ class Material(TypedWritableReferenceCount):
         if self.twoside:
             flags |= 0x020
 
-        color = self.ambient or (1, 1, 1, 1)
-        dg.add_stdfloat(color[0])
-        dg.add_stdfloat(color[1])
-        dg.add_stdfloat(color[2])
-        dg.add_stdfloat(color[3])
-
-        color = self.diffuse or (1, 1, 1, 1)
-        dg.add_stdfloat(color[0])
-        dg.add_stdfloat(color[1])
-        dg.add_stdfloat(color[2])
-        dg.add_stdfloat(color[3])
-
-        color = self.specular or (0, 0, 0, 1)
-        dg.add_stdfloat(color[0])
-        dg.add_stdfloat(color[1])
-        dg.add_stdfloat(color[2])
-        dg.add_stdfloat(color[3])
-
-        color = self.emission or (0, 0, 0, 1)
-        dg.add_stdfloat(color[0])
-        dg.add_stdfloat(color[1])
-        dg.add_stdfloat(color[2])
-        dg.add_stdfloat(color[3])
+        dg.add_vec4(self.ambient or (1, 1, 1, 1))
+        dg.add_vec4(self.diffuse or (0, 0, 0, 1))
+        dg.add_vec4(self.specular or (0, 0, 0, 1))
+        dg.add_vec4(self.emission or (0, 0, 0, 1))
 
         dg.add_stdfloat(self.shininess)
         dg.add_int32(flags)
@@ -104,31 +85,15 @@ class TransformState(TypedWritableReferenceCount):
             else:
                 dg.add_uint32(0x00000c38)
 
-            pos = self.pos or (0, 0, 0)
-            dg.add_stdfloat(pos[0])
-            dg.add_stdfloat(pos[1])
-            dg.add_stdfloat(pos[2])
+            dg.add_vec3(self.pos or (0, 0, 0))
 
             if self.quat:
-                dg.add_stdfloat(self.quat[0])
-                dg.add_stdfloat(self.quat[1])
-                dg.add_stdfloat(self.quat[2])
-                dg.add_stdfloat(self.quat[3])
+                dg.add_vec4(self.quat)
             else:
-                hpr = self.hpr or (0, 0, 0)
-                dg.add_stdfloat(hpr[0])
-                dg.add_stdfloat(hpr[1])
-                dg.add_stdfloat(hpr[2])
+                dg.add_vec3(self.hpr or (0, 0, 0))
 
-            scale = self.scale or (1, 1, 1)
-            dg.add_stdfloat(scale[0])
-            dg.add_stdfloat(scale[1])
-            dg.add_stdfloat(scale[2])
-
-            shear = self.shear or (0, 0, 0)
-            dg.add_stdfloat(shear[0])
-            dg.add_stdfloat(shear[1])
-            dg.add_stdfloat(shear[2])
+            dg.add_vec3(self.scale or (1, 1, 1))
+            dg.add_vec3(self.shear or (0, 0, 0))
 
         elif self.mat:
             dg.add_uint32(0x00000040)
