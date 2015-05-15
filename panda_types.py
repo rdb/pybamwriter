@@ -25,11 +25,61 @@ RenderState.empty = RenderState()
 class TransformState(TypedWritable):
     bam_type_name = "TransformState"
 
+    def __init__(self):
+        self.pos = None
+        self.quat = None
+        self.hpr = None
+        self.scale = None
+        self.shear = None
+        self.mat = None
+
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
-        # For now, just write out the flags for the identity matrix.
-        dg.add_uint32(0x00010005)
+        if self.pos or self.quat or self.hpr or self.scale or self.shear:
+            if self.quat:
+                dg.add_uint32(0x00000338)
+            else:
+                dg.add_uint32(0x00000c38)
+
+            pos = self.pos or (0, 0, 0)
+            dg.add_stdfloat(pos[0])
+            dg.add_stdfloat(pos[1])
+            dg.add_stdfloat(pos[2])
+
+            if self.quat:
+                dg.add_stdfloat(self.quat[0])
+                dg.add_stdfloat(self.quat[1])
+                dg.add_stdfloat(self.quat[2])
+                dg.add_stdfloat(self.quat[3])
+            else:
+                hpr = self.hpr or (0, 0, 0)
+                dg.add_stdfloat(hpr[0])
+                dg.add_stdfloat(hpr[1])
+                dg.add_stdfloat(hpr[2])
+
+            scale = self.scale or (1, 1, 1)
+            dg.add_stdfloat(scale[0])
+            dg.add_stdfloat(scale[1])
+            dg.add_stdfloat(scale[2])
+
+            shear = self.shear or (0, 0, 0)
+            dg.add_stdfloat(shear[0])
+            dg.add_stdfloat(shear[1])
+            dg.add_stdfloat(shear[2])
+
+        elif self.mat:
+            dg.add_uint32(0x00000040)
+
+            #TODO: check if this is the correct ordering
+            for i in (0, 1, 2, 3):
+                for j in (0, 1, 2, 3):
+                    dg.add_stdfloat(self.mat[i][j])
+
+        else:
+            # Identity transform.
+            dg.add_uint32(0x00010005)
+
 
 TransformState.identity = TransformState()
 
@@ -107,6 +157,23 @@ class PandaNode(TypedWritable):
         for stashed in self.stashed:
             manager.write_pointer(dg, stashed)
             dg.add_int32(0) # sort
+
+
+class GeomNode(PandaNode):
+    bam_type_name = "GeomNode"
+
+    def __init__(self, name):
+        super().__init__(name)
+
+        self.geoms = []
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint16(len(self.geoms))
+
+        for geom in self.geoms:
+            manager.write_pointer(dg, geom)
 
 
 class ModelNode(PandaNode):
