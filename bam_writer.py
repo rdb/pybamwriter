@@ -160,12 +160,12 @@ class BamWriter(object):
 
             self.__write_pta_id(packet, pta_id)
 
-    def write_handle(self, packet, type):
-        index = self.type_map.get(type)
+    def write_handle(self, packet, type_handle):
+        index = self.type_map.get(type_handle)
         if not index:
             # Assign a unique type index to this type.
             index = self.next_type_index
-            self.type_map[type] = index
+            self.type_map[type_handle] = index
             self.next_type_index += 1
 
         assert index > 0 and index <= 65535
@@ -175,13 +175,10 @@ class BamWriter(object):
         if index not in self.types_written:
             self.types_written.add(index)
 
-            packet.add_string(type.bam_type_name)
+            packet.add_string(type_handle.__name__)
 
-            # Look through all bases with a bam_type_name.
-            bases = []
-            for base in type.__bases__:
-                if hasattr(base, 'bam_type_name'):
-                    bases.append(base)
+            # Look through all bases (but ignore the base object class)
+            bases = [handle for handle in type_handle.__bases__ if handle is not object]
 
             packet.add_uint8(len(bases))
             for base in bases:

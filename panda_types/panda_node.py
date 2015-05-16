@@ -4,7 +4,6 @@ from .render_states import RenderState, TransformState
 from .render_effects import RenderEffects
 
 class PandaNode(TypedWritableReferenceCount):
-    bam_type_name = "PandaNode"
 
     def __init__(self, name=""):
         super().__init__()
@@ -68,7 +67,6 @@ class PandaNode(TypedWritableReferenceCount):
 
 
 class ModelNode(PandaNode):
-    bam_type_name = "ModelNode"
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
@@ -77,4 +75,4 @@ class ModelNode(PandaNode):
         dg.add_uint16(0)
 
 class ModelRoot(ModelNode):
-    bam_type_name = "ModelRoot"
+    pass

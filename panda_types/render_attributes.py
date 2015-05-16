@@ -4,11 +4,9 @@ from .texture import SamplerState, TextureStage, Texture
 from .material import Material
 
 class RenderAttrib(TypedWritable):
-    bam_type_name = "RenderAttrib"
-
+    pass
 
 class TransparencyAttrib(RenderAttrib):
-    bam_type_name = "TransparencyAttrib"
 
     M_none = 0
     M_alpha = 1
@@ -30,7 +28,6 @@ class TransparencyAttrib(RenderAttrib):
 
 
 class ColorAttrib(RenderAttrib):
-    bam_type_name = "ColorAttrib"
 
     T_vertex = 0
     T_flat = 1
@@ -49,7 +46,6 @@ class ColorAttrib(RenderAttrib):
         dg.add_vec4(self.color)
 
 class MaterialAttrib(RenderAttrib):
-    bam_type_name = "MaterialAttrib"
 
     def __init__(self):
         super().__init__()
@@ -64,7 +60,6 @@ class MaterialAttrib(RenderAttrib):
 
 
 class TextureAttrib(RenderAttrib):
-    bam_type_name = "TextureAttrib"
 
     # textureAttrib.h:StageNode
     class StageNode:

@@ -2,7 +2,6 @@
 from .typed_objects import TypedWritableReferenceCount
 
 class RenderEffects(TypedWritableReferenceCount):
-    bam_type_name = "RenderEffects"
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)

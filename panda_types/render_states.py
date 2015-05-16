@@ -3,7 +3,6 @@ from .typed_objects import TypedWritableReferenceCount
 
 
 class RenderState(TypedWritableReferenceCount):
-    bam_type_name = "RenderState"
 
     def __init__(self):
         super().__init__()
@@ -22,7 +21,6 @@ RenderState.empty = RenderState()
 
 
 class TransformState(TypedWritableReferenceCount):
-    bam_type_name = "TransformState"
 
     def __init__(self):
         super().__init__()

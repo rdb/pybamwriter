@@ -2,7 +2,6 @@
 from .typed_objects import TypedWritableReferenceCount
 
 class Material(TypedWritableReferenceCount):
-    bam_type_name = "Material"
 
     def __init__(self, name=""):
         super().__init__()

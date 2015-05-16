@@ -21,7 +21,6 @@ class GeomEnums:
 
 
 class GeomVertexData(TypedWritableReferenceCount):
-    bam_type_name = "GeomVertexData"
 
     def __init__(self, name=""):
         super().__init__()
@@ -53,7 +52,6 @@ class GeomVertexData(TypedWritableReferenceCount):
 
 
 class Geom(TypedWritableReferenceCount):
-    bam_type_name = "Geom"
 
     PT_none = 0
     PT_polygons = 1
@@ -89,7 +87,6 @@ class Geom(TypedWritableReferenceCount):
 
 
 class GeomPrimitive(TypedWritableReferenceCount):
-    bam_type_name = "GeomPrimitive"
 
     def __init__(self):
         super().__init__()
@@ -116,7 +113,6 @@ class GeomPrimitive(TypedWritableReferenceCount):
 
 
 class GeomNode(PandaNode):
-    bam_type_name = "GeomNode"
 
     def __init__(self, name=""):
         super().__init__(name)
