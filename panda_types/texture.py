@@ -47,6 +47,128 @@ class SamplerState(object):
             dg.add_stdfloat(self.lod_bias)
 
 
+class TextureStage(TypedWritableReferenceCount):
+
+    M_modulate = 0
+    M_decal = 1
+    M_blend = 2
+    M_replace = 3
+    M_add = 4
+    M_combine = 5
+    M_blend_color_scale = 6
+    M_modulate_glow = 7
+    M_modulate_gloss = 8
+    M_normal = 9
+    M_normal_height = 10
+    M_glow = 11
+    M_gloss = 12
+    M_height = 13
+    M_selector = 14
+    M_normal_gloss = 15
+
+
+    CM_undefined = 0
+    CM_replace = 1
+    CM_modulate = 2
+    CM_add = 3
+    CM_add_signed = 4
+    CM_interpolate = 5
+    CM_subtract = 6
+
+
+    CS_undefined = 0
+    CS_texture = 1
+    CS_constant = 2
+    CS_primary_color = 3
+    CS_previous = 4
+    CS_constant_color_scale = 5
+    CS_last_saved_result = 6
+
+    CO_undefined = 0
+    CO_src_color = 1
+    CO_one_minus_src_color = 2
+    CO_src_alpha = 3
+    CO_one_minus_src_alpha = 4
+
+
+    def __init__(self, name=""):
+        super().__init__()
+        self.default = True
+        self.name = name
+        self.sort = 0
+        self.priority = 0
+
+        self.texcoord_name = "UVMap"
+        self.mode = self.M_modulate
+        self.color = (1, 1, 1, 1)
+        self.rgb_scale = 1
+        self.alpha_scale = 1
+        self.saved_result = False
+        self.tex_view_offset = 0 
+
+        self.combine_rgb_mode = self.CM_undefined
+        self.num_combine_rgb_operands = 0
+        self.combine_rgb_source0 = self.CS_undefined
+        self.combine_rgb_operand0 = self.CO_undefined
+        self.combine_rgb_source1 = self.CS_undefined
+        self.combine_rgb_operand1 = self.CO_undefined
+        self.combine_rgb_source2 = self.CS_undefined
+        self.combine_rgb_operand2 = self.CO_undefined
+
+        self.combine_alpha_mode = self.CM_undefined
+        self.num_combine_alpha_operands = 0
+        self.combine_alpha_source0 = self.CS_undefined
+        self.combine_alpha_operand0 = self.CO_undefined
+        self.combine_alpha_source1 = self.CS_undefined
+        self.combine_alpha_operand1 = self.CO_undefined
+        self.combine_alpha_source2 = self.CS_undefined
+        self.combine_alpha_operand2 = self.CO_undefined
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        if self.default:
+            dg.add_bool(True)
+        else:
+            dg.add_bool(False)
+
+        dg.add_string(self.name)
+        dg.add_int32(self.sort)
+        dg.add_int32(self.priority)
+
+        manager.write_internal_name(dg, self.texcoord_name)
+        
+        dg.add_uint8(self.mode)
+        
+        dg.add_vec4(self.color)
+        dg.add_uint8(self.rgb_scale)
+        dg.add_uint8(self.alpha_scale)
+        dg.add_bool(self.saved_result)
+
+        if manager.file_version >= (6, 26):
+            dg.add_int32(self.tex_view_offset)
+        
+        dg.add_uint8(self.combine_rgb_mode)
+        dg.add_uint8(self.num_combine_rgb_operands)
+        dg.add_uint8(self.elf.combine_rgb_source0)
+        dg.add_uint8(self.combine_rgb_operand0)
+        dg.add_uint8(self.combine_rgb_source1)
+        dg.add_uint8(self.combine_rgb_operand1)
+        dg.add_uint8(self.combine_rgb_source2)
+        dg.add_uint8(self.combine_rgb_operand2)
+        
+        dg.add_uint8(self.combine_alpha_mode)
+        dg.add_uint8(self.num_combine_alpha_operands)
+        dg.add_uint8(self.combine_alpha_source0)
+        dg.add_uint8(self.combine_alpha_operand0)
+        dg.add_uint8(self.combine_alpha_source1)
+        dg.add_uint8(self.combine_alpha_operand1)
+        dg.add_uint8(self.combine_alpha_source2)
+        dg.add_uint8(self.combine_alpha_operand2)
+
+
+TextureStage.default = TextureStage("default")
+
 class Texture(TypedWritableReferenceCount):
 
     TT_1d_texture = 0
@@ -94,7 +216,7 @@ class Texture(TypedWritableReferenceCount):
 
 
     def __init__(self, name=""):
-        super().__init__(self)
+        super().__init__()
 
         self.name = name
         self.has_rawdata = False
@@ -107,7 +229,7 @@ class Texture(TypedWritableReferenceCount):
 
         self.compression = self.CM_default
         self.quality_level = self.QL_default
-        self.format = self.F.rgba
+        self.format = self.F_rgba
         self.num_components = 4
         self.usage_hint = GeomEnums.UH_unspecified
         self.auto_texture_scale = self.ATS_unspecified
