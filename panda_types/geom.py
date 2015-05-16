@@ -1,12 +1,14 @@
  
 from .typed_objects import TypedWritableReferenceCount
 from .panda_node import PandaNode
+from .render_states import RenderState
 
 class GeomEnums:
     UH_client = 0
     UH_stream = 1
     UH_dynamic = 2
     UH_static = 3
+    UH_unspecified = 4
 
     NT_uint8 = 0
     NT_uint16 = 1
@@ -108,7 +110,7 @@ class GeomPrimitive(TypedWritableReferenceCount):
         dg.add_uint8(self.index_type);
         dg.add_uint8(self.usage_hint);
 
-        #assert self.vertices is None or isinstance(self.vertices, GeomVertexArrayData)
+        # assert self.vertices is None or isinstance(self.vertices, GeomVertexArrayData)
         manager.write_pointer(dg, self.vertices)
         manager.write_pta(dg, self.ends)
 
@@ -116,9 +118,10 @@ class GeomPrimitive(TypedWritableReferenceCount):
 class GeomNode(PandaNode):
     bam_type_name = "GeomNode"
 
-    def __init__(self, name):
+    def __init__(self, name=""):
         super().__init__(name)
 
+        # Geoms should be a list of tuples, in the format (Geom, RenderState)
         self.geoms = []
 
     def write_datagram(self, manager, dg):
@@ -126,6 +129,9 @@ class GeomNode(PandaNode):
 
         dg.add_uint16(len(self.geoms))
 
-        for geom in self.geoms:
+        for geom, render_state in self.geoms:
+            assert isinstance(geom, Geom)
+            assert isinstance(render_state, RenderState)
             manager.write_pointer(dg, geom)
+            manager.write_pointer(dg, render_state)
 
