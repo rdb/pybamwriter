@@ -1,8 +1,8 @@
  
-from .typed_objects import TypedWritableReferenceCount
+from .typed_objects import NodeCachedReferenceCount
 
 
-class RenderState(TypedWritableReferenceCount):
+class RenderState(NodeCachedReferenceCount):
 
     def __init__(self):
         super().__init__()
@@ -20,7 +20,7 @@ class RenderState(TypedWritableReferenceCount):
 RenderState.empty = RenderState()
 
 
-class TransformState(TypedWritableReferenceCount):
+class TransformState(NodeCachedReferenceCount):
 
     def __init__(self):
         super().__init__()

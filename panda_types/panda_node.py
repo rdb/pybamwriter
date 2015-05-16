@@ -1,9 +1,9 @@
 
-from .typed_objects import TypedWritableReferenceCount
+from .typed_objects import TypedWritable
 from .render_states import RenderState, TransformState
 from .render_effects import RenderEffects
 
-class PandaNode(TypedWritableReferenceCount):
+class PandaNode(TypedWritable):
 
     def __init__(self, name=""):
         super().__init__()

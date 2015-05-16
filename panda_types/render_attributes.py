@@ -1,9 +1,10 @@
  
-from .typed_objects import TypedWritable
+from .typed_objects import TypedWritableReferenceCount
 from .texture import SamplerState, TextureStage, Texture
 from .material import Material
 
-class RenderAttrib(TypedWritable):
+
+class RenderAttrib(TypedWritableReferenceCount):
     pass
 
 class TransparencyAttrib(RenderAttrib):
