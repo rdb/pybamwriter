@@ -1,5 +1,4 @@
-from .panda_types import  PandaNode, ModelRoot, TransformState, GeomNode, GeomPrimitive
-from .datagram import Datagram
+from .panda_types import *
 
 if __name__ == '__main__':
     from .bam_writer import BamWriter
@@ -12,6 +11,9 @@ if __name__ == '__main__':
     child1.transform = TransformState()
     child1.transform.scale = (2, 2, 2)
     child1.transform.hpr = (90, 0, 180)
+    child1.state = RenderState()
+    child1.state.attributes.append(TransparencyAttrib())
+
 
     child2 = GeomNode("childnode2")
     model.add_child(child2)

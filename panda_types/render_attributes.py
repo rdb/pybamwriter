@@ -1,9 +1,9 @@
  
-from typed_objects import TypedWritable
-from texture import SamplerState
-from material import Material
+from .typed_objects import TypedWritable
+from .texture import SamplerState
+from .material import Material
 
- class RenderAttrib(TypedWritable):
+class RenderAttrib(TypedWritable):
     bam_type_name = "RenderAttrib"
 
 
