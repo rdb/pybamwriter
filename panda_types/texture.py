@@ -1,8 +1,8 @@
  
-from typed_objects import TypedWritableReferenceCount
-from geoms import GeomEnums
+from .typed_objects import TypedWritableReferenceCount
+from .geom import GeomEnums
 
- class SamplerState(object):
+class SamplerState(object):
 
     FT_nearest = 0
     FT_linear = 1
