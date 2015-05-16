@@ -1,6 +1,6 @@
  
 from .typed_objects import TypedWritable
-from .texture import SamplerState
+from .texture import SamplerState, TextureStage, Texture
 from .material import Material
 
 class RenderAttrib(TypedWritable):
@@ -70,7 +70,6 @@ class TextureAttrib(RenderAttrib):
             self.sampler = None
             self.stage = None
             self.texture = None
-            self.has_sampler = False
             self.ff_tc_index = 0
             self.implicit_sort = 0
             self.override = 0
@@ -91,7 +90,7 @@ class TextureAttrib(RenderAttrib):
         for stage_node in self.off_stage_nodes:
             assert isinstance(stage_node, TextureAttrib.StageNode)
             assert isinstance(stage_node.stage, TextureStage)
-            manager.write_pointer(dg, stage)
+            manager.write_pointer(dg, stage_node.stage)
 
         dg.add_uint16(len(self.on_stage_nodes))
 
@@ -110,8 +109,8 @@ class TextureAttrib(RenderAttrib):
                 dg.add_int32(stage_node.override)
 
             if manager.file_version >= (6, 36):
-                dg.add_bool(stage_node.has_sampler)
+                dg.add_bool(True if stage_node.sampler else False)
 
-                if stage_node.has_sampler:
+                if stage_node.sampler:
                     assert isinstance(stage_node.sampler, SamplerState)
                     stage_node.sampler.write_datagram(manager, dg)

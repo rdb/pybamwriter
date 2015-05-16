@@ -26,6 +26,15 @@ if __name__ == '__main__':
     child1.state.attributes.append(color_attrib)
 
     texture_attrib = TextureAttrib()
+    texture = Texture("My Texture")
+    texture_stage = TextureStage.default
+    sampler_state = SamplerState()
+    stage_node = TextureAttrib.StageNode()
+    stage_node.sampler = sampler_state
+    stage_node.stage = texture_stage
+    stage_node.texture = texture
+    texture_attrib.on_stage_nodes.append(stage_node)
+
     child1.state.attributes.append(texture_attrib)
 
 

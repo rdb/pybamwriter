@@ -150,14 +150,13 @@ class TextureStage(TypedWritableReferenceCount):
         
         dg.add_uint8(self.combine_rgb_mode)
         dg.add_uint8(self.num_combine_rgb_operands)
-        dg.add_uint8(self.elf.combine_rgb_source0)
+        dg.add_uint8(self.combine_rgb_source0)
         dg.add_uint8(self.combine_rgb_operand0)
         dg.add_uint8(self.combine_rgb_source1)
         dg.add_uint8(self.combine_rgb_operand1)
         dg.add_uint8(self.combine_rgb_source2)
         dg.add_uint8(self.combine_rgb_operand2)
-        
-        dg.add_uint8(self.combine_alpha_mode)
+
         dg.add_uint8(self.num_combine_alpha_operands)
         dg.add_uint8(self.combine_alpha_source0)
         dg.add_uint8(self.combine_alpha_operand0)
