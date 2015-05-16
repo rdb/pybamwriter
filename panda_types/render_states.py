@@ -5,11 +5,18 @@ from .typed_objects import TypedWritableReferenceCount
 class RenderState(TypedWritableReferenceCount):
     bam_type_name = "RenderState"
 
+    def __init__(self):
+        super().__init__()
+
+        self.attributes = []
+
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
-        # For now, just write out the value for a state with no attribs
-        dg.add_uint16(0)
+        dg.add_uint16(len(self.attributes))
+        for attrib in self.attributes:
+            manager.write_pointer(dg, attrib)
+            dg.add_int32(0) # Render attrib override
 
 RenderState.empty = RenderState()
 
