@@ -78,7 +78,7 @@ class TextureAttrib(RenderAttrib):
     def __init__(self):
         super().__init__()
 
-        self._off_all_stages = False
+        self.off_all_stages = False
         self.off_stage_nodes = []
         self.on_stage_nodes = []
         self.texture = None
@@ -86,7 +86,7 @@ class TextureAttrib(RenderAttrib):
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
-        dg.add_bool(self._off_all_stages)
+        dg.add_bool(self.off_all_stages)
         dg.add_uint16(len(self.off_stages))
         
         for stage_node in self.off_stage_nodes:
