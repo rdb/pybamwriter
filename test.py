@@ -21,6 +21,13 @@ if __name__ == '__main__':
     material_attrib.material = material
     child1.state.attributes.append(material_attrib)
 
+    color_attrib = ColorAttrib()
+    color_attrib.color = (1.0, 0.6, 0.1, 1.0)
+    child1.state.attributes.append(color_attrib)
+
+    texture_attrib = TextureAttrib()
+    child1.state.attributes.append(texture_attrib)
+
 
     child2 = GeomNode("childnode2")
     model.add_child(child2)

@@ -81,20 +81,19 @@ class TextureAttrib(RenderAttrib):
         self.off_all_stages = False
         self.off_stage_nodes = []
         self.on_stage_nodes = []
-        self.texture = None
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
         dg.add_bool(self.off_all_stages)
-        dg.add_uint16(len(self.off_stages))
+        dg.add_uint16(len(self.off_stage_nodes))
         
         for stage_node in self.off_stage_nodes:
             assert isinstance(stage_node, TextureAttrib.StageNode)
             assert isinstance(stage_node.stage, TextureStage)
             manager.write_pointer(dg, stage)
 
-        dg.add_uint16(len(self.on_stages))
+        dg.add_uint16(len(self.on_stage_nodes))
 
         for stage_node in self.on_stage_nodes:
             assert isinstance(stage_node, TextureAttrib.StageNode)
