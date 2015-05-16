@@ -34,17 +34,21 @@ class ColorAttrib(RenderAttrib):
     T_flat = 1
     T_off = 2
 
-    def __init__(self):
+    def __init__(self, type, color=(1, 1, 1, 1)):
         super().__init__()
 
-        self.type = self.T_vertex
-        self.color = (1, 1, 1, 1)
+        self.type = type
+        self.color = color
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
         dg.add_int8(self.type)
         dg.add_vec4(self.color)
+
+ColorAttrib.off = ColorAttrib(ColorAttrib.T_off)
+ColorAttrib.vertex = ColorAttrib(ColorAttrib.T_vertex)
+
 
 class MaterialAttrib(RenderAttrib):
 

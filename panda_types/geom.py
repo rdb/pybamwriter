@@ -15,11 +15,22 @@ class GeomEnums:
     NT_uint8 = 0
     NT_uint16 = 1
     NT_uint32 = 2
+    NT_float32 = 5
 
     SM_uniform = 0
     SM_smooth = 1
     SM_flat_first_vertex = 2
     SM_flat_last_vertex = 3
+
+    C_other = 0
+    C_point = 1
+    C_clip_point = 2
+    C_vector = 3
+    C_texcoord = 4
+    C_color = 5
+    C_index = 6
+    C_morph_delta = 7
+
 
 
 GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", "numeric_type", "contents", "start", "column_alignment"))
@@ -27,7 +38,7 @@ GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", "nu
 
 class GeomVertexArrayFormat(TypedWritableReferenceCount):
 
-    def __init__(self, array_format, usage_hint):
+    def __init__(self):
         super().__init__()
 
         self.stride = 0
@@ -37,13 +48,18 @@ class GeomVertexArrayFormat(TypedWritableReferenceCount):
 
         self.columns = []
 
+    def add_column(self, *args, **kwargs):
+        self.columns.append(GeomVertexColumn(*args, **kwargs))
+
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
         dg.add_uint16(self.stride)
         dg.add_uint16(self.total_bytes)
         dg.add_uint8(self.pad_to)
-        dg.add_uint16(self.divisor)
+
+        if manager.file_version >= (6, 36):
+            dg.add_uint16(self.divisor)
 
         dg.add_uint16(len(self.columns))
         for column in self.columns:
@@ -75,14 +91,35 @@ class GeomVertexArrayData(CopyOnWriteObject):
         dg.data += self.buffer
 
 
+class GeomVertexFormat(TypedWritableReferenceCount):
+
+    def __init__(self, *args):
+        super().__init__()
+
+        self.arrays = list(args)
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        #TODO: vertex animation spec
+        dg.add_uint8(0)
+        dg.add_uint16(0)
+        dg.add_bool(False)
+
+        dg.add_uint16(len(self.arrays))
+        for array in self.arrays:
+            assert isinstance(array, GeomVertexArrayFormat)
+            manager.write_pointer(dg, array)
+
+
 class GeomVertexData(CopyOnWriteObject):
 
-    def __init__(self, name=""):
+    def __init__(self, name, format, usage_hint):
         super().__init__()
 
         self.name = name
-        self.format = None
-        self.usage_hint = GeomEnums.UH_static
+        self.format = format
+        self.usage_hint = usage_hint
         self.arrays = []
         self.transform_table = None
         self.transform_blend_table = None
@@ -114,9 +151,9 @@ class Geom(CopyOnWriteObject):
     PT_points = 3
     PT_patches = 4
 
-    def __init__(self):
+    def __init__(self, vertex_data):
         super().__init__()
-        self.data = None
+        self.data = vertex_data
         self.primitives = []
         self.primitive_type = self.PT_none
         self.shade_model = GeomEnums.SM_smooth
@@ -215,6 +252,9 @@ class GeomNode(PandaNode):
 
         # Geoms should be a list of tuples, in the format (Geom, RenderState)
         self.geoms = []
+
+    def add_geom(self, geom, state=RenderState.empty):
+        self.geoms.append((geom, state))
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)

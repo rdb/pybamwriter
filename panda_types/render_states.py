@@ -4,10 +4,10 @@ from .typed_objects import NodeCachedReferenceCount
 
 class RenderState(NodeCachedReferenceCount):
 
-    def __init__(self):
+    def __init__(self, *args):
         super().__init__()
 
-        self.attributes = []
+        self.attributes = list(args)
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
