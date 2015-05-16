@@ -1,7 +1,9 @@
- 
-from .typed_objects import TypedWritableReferenceCount
+
+from .typed_objects import CopyOnWriteObject, TypedWritableReferenceCount
 from .panda_node import PandaNode
 from .render_states import RenderState
+
+from collections import namedtuple
 
 class GeomEnums:
     UH_client = 0
@@ -20,7 +22,60 @@ class GeomEnums:
     SM_flat_last_vertex = 3
 
 
-class GeomVertexData(TypedWritableReferenceCount):
+GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", "numeric_type", "contents", "start", "column_alignment"))
+
+
+class GeomVertexArrayFormat(TypedWritableReferenceCount):
+
+    def __init__(self, array_format, usage_hint):
+        super().__init__()
+
+        self.stride = 0
+        self.total_bytes = 0
+        self.pad_to = 0
+        self.divisor = 0
+
+        self.columns = []
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint16(self.stride)
+        dg.add_uint16(self.total_bytes)
+        dg.add_uint8(self.pad_to)
+        dg.add_uint16(self.divisor)
+
+        dg.add_uint16(len(self.columns))
+        for column in self.columns:
+            manager.write_internal_name(dg, column.name)
+            dg.add_uint8(column.num_components)
+            dg.add_uint8(column.numeric_type)
+            dg.add_uint8(column.contents)
+            dg.add_uint16(column.start)
+
+            if manager.file_version >= (6, 29):
+                dg.add_uint8(column.column_alignment)
+
+
+class GeomVertexArrayData(CopyOnWriteObject):
+
+    def __init__(self, array_format, usage_hint):
+        super().__init__()
+
+        self.array_format = array_format
+        self.usage_hint = usage_hint
+        self.buffer = bytearray()
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        manager.write_pointer(dg, self.array_format)
+        dg.add_uint8(self.usage_hint)
+        dg.add_uint32(len(self.buffer))
+        dg.data += self.buffer
+
+
+class GeomVertexData(CopyOnWriteObject):
 
     def __init__(self, name=""):
         super().__init__()
@@ -51,7 +106,7 @@ class GeomVertexData(TypedWritableReferenceCount):
         manager.write_pointer(dg, self.slider_table)
 
 
-class Geom(TypedWritableReferenceCount):
+class Geom(CopyOnWriteObject):
 
     PT_none = 0
     PT_polygons = 1
@@ -86,15 +141,15 @@ class Geom(TypedWritableReferenceCount):
             dg.add_uint8(self.bounds_type)
 
 
-class GeomPrimitive(TypedWritableReferenceCount):
+class GeomPrimitive(CopyOnWriteObject):
 
-    def __init__(self):
+    def __init__(self, usage_hint):
         super().__init__()
         self.shade_model = GeomEnums.SM_smooth
         self.first_vertex = 0
         self.num_vertices = 0
         self.index_type = GeomEnums.NT_uint16
-        self.usage_hint = GeomEnums.UH_static
+        self.usage_hint = usage_hint
         self.vertices = None
         self.ends = None
 
@@ -110,6 +165,47 @@ class GeomPrimitive(TypedWritableReferenceCount):
         # assert self.vertices is None or isinstance(self.vertices, GeomVertexArrayData)
         manager.write_pointer(dg, self.vertices)
         manager.write_pta(dg, self.ends)
+
+
+class GeomPoints(GeomPrimitive):
+    pass
+
+
+class GeomLines(GeomPrimitive):
+    pass
+
+
+class GeomLinestrips(GeomPrimitive):
+    pass
+
+
+class GeomTriangles(GeomPrimitive):
+    pass
+
+
+class GeomTristrips(GeomPrimitive):
+    pass
+
+
+class GeomTrifans(GeomPrimitive):
+    pass
+
+
+class GeomTrifans(GeomPrimitive):
+    pass
+
+
+class GeomPatches(GeomPrimitive):
+
+    def __init__(self, num_vertices_per_patch, usage_hint):
+        super().__init__(usage_hint)
+
+        self.num_vertices_per_patch = num_vertices_per_patch
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint16(self.num_vertices_per_patch)
 
 
 class GeomNode(PandaNode):

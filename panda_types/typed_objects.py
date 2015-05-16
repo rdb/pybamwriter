@@ -18,5 +18,9 @@ class CachedTypedWritableReferenceCount(TypedWritableReferenceCount):
     pass
 
 
+class CopyOnWriteObject(CachedTypedWritableReferenceCount):
+    pass
+
+
 class NodeCachedReferenceCount(CachedTypedWritableReferenceCount):
     pass
