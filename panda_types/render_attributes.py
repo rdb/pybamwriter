@@ -1,6 +1,7 @@
  
 from typed_objects import TypedWritable
 from texture import SamplerState
+from material import Material
 
  class RenderAttrib(TypedWritable):
     bam_type_name = "RenderAttrib"
@@ -26,6 +27,39 @@ class TransparencyAttrib(RenderAttrib):
         super().write_datagram(manager, dg)
 
         dg.add_int8(self.mode)
+
+
+class ColorAttrib(RenderAttrib):
+
+    T_vertex = 0
+    T_flat = 1
+    T_off = 2
+
+    def __init__(self):
+        super().__init__()
+
+        self.type = self.T_vertex
+        self.color = (1, 1, 1, 1)
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_int8(self.type)
+        dg.add_vec4(self.color)
+
+class MaterialAttrib(RenderAttrib):
+
+    def __init__(self):
+        super().__init__()
+
+        self.material = None
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        assert isinstance(self.material, Material)
+        manager.write_pointer(dg, self.material)
+
 
 class TextureAttrib(RenderAttrib):
     bam_type_name = "TextureAttrib"
