@@ -3,6 +3,7 @@ from .typed_objects import TypedWritableReferenceCount
 from .geom import GeomEnums
 
 class SamplerState(object):
+    bam_type_name = "SamplerState"
 
     FT_nearest = 0
     FT_linear = 1
@@ -48,6 +49,7 @@ class SamplerState(object):
 
 
 class TextureStage(TypedWritableReferenceCount):
+    bam_type_name = "TextureStage"
 
     M_modulate = 0
     M_decal = 1
@@ -169,6 +171,7 @@ class TextureStage(TypedWritableReferenceCount):
 TextureStage.default = TextureStage("default")
 
 class Texture(TypedWritableReferenceCount):
+    bam_type_name = "Texture"
 
     TT_1d_texture = 0
     TT_2d_texture = 1

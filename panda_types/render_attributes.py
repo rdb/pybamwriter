@@ -30,6 +30,7 @@ class TransparencyAttrib(RenderAttrib):
 
 
 class ColorAttrib(RenderAttrib):
+    bam_type_name = "ColorAttrib"
 
     T_vertex = 0
     T_flat = 1
@@ -48,6 +49,7 @@ class ColorAttrib(RenderAttrib):
         dg.add_vec4(self.color)
 
 class MaterialAttrib(RenderAttrib):
+    bam_type_name = "MaterialAttrib"
 
     def __init__(self):
         super().__init__()
