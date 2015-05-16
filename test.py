@@ -14,6 +14,13 @@ if __name__ == '__main__':
     child1.state = RenderState()
     child1.state.attributes.append(TransparencyAttrib())
 
+    material = Material("My Material")
+    material.diffuse = (0.2, 0.6, 1.0, 1.0)
+
+    material_attrib = MaterialAttrib()
+    material_attrib.material = material
+    child1.state.attributes.append(material_attrib)
+
 
     child2 = GeomNode("childnode2")
     model.add_child(child2)

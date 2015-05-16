@@ -18,6 +18,8 @@ class Material(TypedWritableReferenceCount):
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
+        dg.add_string(self.name)
+
         flags = 0
         if self.ambient:
             flags |= 0x001
