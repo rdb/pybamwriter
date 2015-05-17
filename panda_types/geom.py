@@ -33,7 +33,8 @@ class GeomEnums:
 
 
 
-GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", "numeric_type", "contents", "start", "column_alignment"))
+GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", 
+    "numeric_type", "contents", "start", "column_alignment"))
 
 
 class GeomVertexArrayFormat(TypedWritableReferenceCount):
@@ -85,6 +86,8 @@ class GeomVertexArrayData(CopyOnWriteObject):
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
+        assert isinstance(self.array_format, GeomVertexArrayFormat)
+
         manager.write_pointer(dg, self.array_format)
         dg.add_uint8(self.usage_hint)
         dg.add_uint32(len(self.buffer))
@@ -111,14 +114,13 @@ class GeomVertexFormat(TypedWritableReferenceCount):
             assert isinstance(array, GeomVertexArrayFormat)
             manager.write_pointer(dg, array)
 
-
 class GeomVertexData(CopyOnWriteObject):
 
-    def __init__(self, name, format, usage_hint):
+    def __init__(self, name, vertex_format, usage_hint):
         super().__init__()
 
         self.name = name
-        self.format = format
+        self.format = vertex_format
         self.usage_hint = usage_hint
         self.arrays = []
         self.transform_table = None
@@ -130,8 +132,7 @@ class GeomVertexData(CopyOnWriteObject):
 
         dg.add_string(self.name)
 
-        assert self.format
-        # assert isinstance(self.format, GeomVertexFormat) # must be implemented first
+        assert isinstance(self.format, GeomVertexFormat)
         manager.write_pointer(dg, self.format)
         dg.add_uint8(self.usage_hint)
         dg.add_uint16(len(self.arrays))
@@ -193,13 +194,13 @@ class GeomPrimitive(CopyOnWriteObject):
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
-        dg.add_uint8(self.shade_model);
-        dg.add_int32(self.first_vertex);
-        dg.add_int32(self.num_vertices);
-        dg.add_uint8(self.index_type);
-        dg.add_uint8(self.usage_hint);
+        dg.add_uint8(self.shade_model)
+        dg.add_int32(self.first_vertex)
+        dg.add_int32(self.num_vertices)
+        dg.add_uint8(self.index_type)
+        dg.add_uint8(self.usage_hint)
 
-        # assert self.vertices is None or isinstance(self.vertices, GeomVertexArrayData)
+        assert self.vertices is None or isinstance(self.vertices, GeomVertexArrayData)
         manager.write_pointer(dg, self.vertices)
         manager.write_pta(dg, self.ends)
 

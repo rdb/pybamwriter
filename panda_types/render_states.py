@@ -53,10 +53,9 @@ class TransformState(NodeCachedReferenceCount):
         elif self.mat:
             dg.add_uint32(0x00000040)
 
-            #TODO: check if this is the correct ordering
             for i in (0, 1, 2, 3):
                 for j in (0, 1, 2, 3):
-                    dg.add_stdfloat(self.mat[i][j])
+                    dg.add_stdfloat(self.mat[j][i])
 
         else:
             # Identity transform.

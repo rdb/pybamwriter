@@ -52,10 +52,10 @@ ColorAttrib.vertex = ColorAttrib(ColorAttrib.T_vertex)
 
 class MaterialAttrib(RenderAttrib):
 
-    def __init__(self):
+    def __init__(self, material=None):
         super().__init__()
 
-        self.material = None
+        self.material = material
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)

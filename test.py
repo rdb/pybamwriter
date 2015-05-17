@@ -46,8 +46,8 @@ if __name__ == '__main__':
                                      0, 0, 1,
                                     -1, 0, 1])
 
-    format = GeomVertexFormat(array_format)
-    data = GeomVertexData("triangle", format, GeomEnums.UH_static)
+    vertex_format = GeomVertexFormat(array_format)
+    data = GeomVertexData("triangle", vertex_format, GeomEnums.UH_static)
     data.arrays.append(array_data)
 
     primitive = GeomTriangles(GeomEnums.UH_static)
