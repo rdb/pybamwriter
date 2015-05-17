@@ -35,16 +35,18 @@ if __name__ == '__main__':
     child1.state.attributes.append(texture_attrib)
 
     array_format = GeomVertexArrayFormat()
-    array_format.stride = 3 * 4
-    array_format.total_bytes = 3 * 4
+    array_format.stride = 3 * 4 * 2
+    array_format.total_bytes = 3 * 4 * 2
     array_format.pad_to = 4
     array_format.add_column("vertex", 3, GeomEnums.NT_float32,
                             GeomEnums.C_point, start=0, column_alignment=4)
+    array_format.add_column("normal", 3, GeomEnums.NT_float32,
+                            GeomEnums.C_point, start=4 * 3, column_alignment=4)
 
     array_data = GeomVertexArrayData(array_format, GeomEnums.UH_static)
-    array_data.buffer += array('f', [0, 0, 0,
-                                     0, 0, 1,
-                                    -1, 0, 1])
+    array_data.buffer += array('f', [0, 0, 0, 0, 1 ,0,
+                                     0, 0, 1, 0, 1, 0,
+                                    -1, 0, 1, 0, 1, 0])
 
     vertex_format = GeomVertexFormat(array_format)
     data = GeomVertexData("triangle", vertex_format, GeomEnums.UH_static)
