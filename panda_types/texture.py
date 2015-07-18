@@ -35,10 +35,10 @@ class SamplerState(object):
 
         dg.add_uint8(self.wrap_u)
         dg.add_uint8(self.wrap_v)
-        dg.add_uint8(self.wrap_vw)
+        dg.add_uint8(self.wrap_w)
         dg.add_uint8(self.minfilter)
         dg.add_uint8(self.magfilter)
-        dg.add_uint8(self.anisotropic_degree)
+        dg.add_int16(self.anisotropic_degree)
         dg.add_vec4(self.border_color)
 
         if manager.file_version >= (6, 36):
@@ -253,6 +253,7 @@ class Texture(TypedWritableReferenceCount):
         self.ram_image_compression = self.CM_off
         self.ram_images = []
 
+        self.default_sampler = SamplerState()
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
@@ -271,6 +272,8 @@ class Texture(TypedWritableReferenceCount):
             dg.add_bool(self.has_read_mipmaps)
 
         # do_write_datagram_body
+        self.default_sampler.write_datagram(manager, dg)
+
         if manager.file_version >= (6, 1):
             dg.add_uint8(self.compression)
         
@@ -300,33 +303,34 @@ class Texture(TypedWritableReferenceCount):
                 # dg.append_data(self.simple_ram_image, self.simple_ram_image_size)
 
         # do_write_datagram_rawdata
-        dg.add_uint32(self.x_size)
-        dg.add_uint32(self.y_size)
-        dg.add_uint32(self.z_size)
+        if self.has_rawdata:
+            dg.add_uint32(self.x_size)
+            dg.add_uint32(self.y_size)
+            dg.add_uint32(self.z_size)
 
-        if manager.file_version >= (6, 30):
-            dg.add_uint32(self.pad_x_size)
-            dg.add_uint32(self.pad_y_size)
-            dg.add_uint32(self.pad_z_size)
+            if manager.file_version >= (6, 30):
+                dg.add_uint32(self.pad_x_size)
+                dg.add_uint32(self.pad_y_size)
+                dg.add_uint32(self.pad_z_size)
 
-        if manager.file_version >= (6, 26):
-            dg.add_uint32(self.num_views)
+            if manager.file_version >= (6, 26):
+                dg.add_uint32(self.num_views)
 
-        dg.add_uint8(self.component_type)
-        dg.add_uint8(self.component_width)
-
-        if manager.file_version >= (6, 1):
-            dg.add_uint8(self.ram_image_compression)
-        
-        if manager.file_version >= (6, 3):
-            dg.add_uint8(len(self.ram_images))
-
-
-        for ram_image in self.ram_images:
-            # assert isinstance(ram_image, RamImage)
+            dg.add_uint8(self.component_type)
+            dg.add_uint8(self.component_width)
 
             if manager.file_version >= (6, 1):
-                dg.add_uint32(ram_image.page_size)
+                dg.add_uint8(self.ram_image_compression)
+            
+            if manager.file_version >= (6, 3):
+                dg.add_uint8(len(self.ram_images))
 
-            dg.add_uint32(ram_image.image_size)
-            # dg.append_data(ram_image.image, ram_image.image_size)
+
+            for ram_image in self.ram_images:
+                # assert isinstance(ram_image, RamImage)
+
+                if manager.file_version >= (6, 1):
+                    dg.add_uint32(ram_image.page_size)
+
+                dg.add_uint32(ram_image.image_size)
+                # dg.append_data(ram_image.image, ram_image.image_size)
