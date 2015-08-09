@@ -2,6 +2,7 @@
 from .typed_objects import TypedWritableReferenceCount
 from .texture import SamplerState, TextureStage, Texture
 from .material import Material
+from .render_states import TransformState
 
 
 class RenderAttrib(TypedWritableReferenceCount):
@@ -116,3 +117,33 @@ class TextureAttrib(RenderAttrib):
                 if stage_node.sampler:
                     assert isinstance(stage_node.sampler, SamplerState)
                     stage_node.sampler.write_datagram(manager, dg)
+
+
+class TexMatrixAttrib(RenderAttrib):
+
+    class StageNode:
+        def __init__(self, stage=None, transform=None, override=0):
+            self.stage = stage
+            self.transform = transform
+            self.override = override
+
+    def __init__(self):
+        super().__init__()
+        self.stages = []
+
+    def add_stage(self, stage, transform, override):
+        self.stages.append(self.StageNode(stage, transform, override))
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint16(len(self.stages))
+
+        for stage_node in self.stages:
+            assert isinstance(stage_node, TexMatrixAttrib.StageNode)
+            assert isinstance(stage_node.stage, TextureStage)
+            assert isinstance(stage_node.transform, TransformState)
+
+            manager.write_pointer(dg, stage_node.stage)
+            manager.write_pointer(dg, stage_node.transform)
+            dg.add_int32(stage_node.override)
