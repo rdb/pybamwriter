@@ -91,14 +91,14 @@ class TextureStage(TypedWritableReferenceCount):
     CO_one_minus_src_alpha = 4
 
 
-    def __init__(self, name=""):
+    def __init__(self, name="Stage"):
         super().__init__()
-        self.default = True
+        self.default = False
         self.name = name
         self.sort = 0
         self.priority = 0
 
-        self.texcoord_name = "UVMap"
+        self.texcoord_name = "texcoord"
         self.mode = self.M_modulate
         self.color = (1, 1, 1, 1)
         self.rgb_scale = 1
@@ -129,41 +129,42 @@ class TextureStage(TypedWritableReferenceCount):
 
         if self.default:
             dg.add_bool(True)
+
         else:
             dg.add_bool(False)
 
-        dg.add_string(self.name)
-        dg.add_int32(self.sort)
-        dg.add_int32(self.priority)
+            dg.add_string(self.name)
+            dg.add_int32(self.sort)
+            dg.add_int32(self.priority)
 
-        manager.write_internal_name(dg, self.texcoord_name)
-        
-        dg.add_uint8(self.mode)
-        
-        dg.add_vec4(self.color)
-        dg.add_uint8(self.rgb_scale)
-        dg.add_uint8(self.alpha_scale)
-        dg.add_bool(self.saved_result)
+            manager.write_internal_name(dg, self.texcoord_name)
+            
+            dg.add_uint8(self.mode)
+            dg.add_vec4(self.color)
+            dg.add_uint8(self.rgb_scale)
+            dg.add_uint8(self.alpha_scale)
+            dg.add_bool(self.saved_result)
 
-        if manager.file_version >= (6, 26):
-            dg.add_int32(self.tex_view_offset)
-        
-        dg.add_uint8(self.combine_rgb_mode)
-        dg.add_uint8(self.num_combine_rgb_operands)
-        dg.add_uint8(self.combine_rgb_source0)
-        dg.add_uint8(self.combine_rgb_operand0)
-        dg.add_uint8(self.combine_rgb_source1)
-        dg.add_uint8(self.combine_rgb_operand1)
-        dg.add_uint8(self.combine_rgb_source2)
-        dg.add_uint8(self.combine_rgb_operand2)
+            if manager.file_version >= (6, 26):
+                dg.add_int32(self.tex_view_offset)
+            
+            dg.add_uint8(self.combine_rgb_mode)
+            dg.add_uint8(self.num_combine_rgb_operands)
+            dg.add_uint8(self.combine_rgb_source0)
+            dg.add_uint8(self.combine_rgb_operand0)
+            dg.add_uint8(self.combine_rgb_source1)
+            dg.add_uint8(self.combine_rgb_operand1)
+            dg.add_uint8(self.combine_rgb_source2)
+            dg.add_uint8(self.combine_rgb_operand2)
 
-        dg.add_uint8(self.num_combine_alpha_operands)
-        dg.add_uint8(self.combine_alpha_source0)
-        dg.add_uint8(self.combine_alpha_operand0)
-        dg.add_uint8(self.combine_alpha_source1)
-        dg.add_uint8(self.combine_alpha_operand1)
-        dg.add_uint8(self.combine_alpha_source2)
-        dg.add_uint8(self.combine_alpha_operand2)
+            dg.add_uint8(self.combine_alpha_mode)
+            dg.add_uint8(self.num_combine_alpha_operands)
+            dg.add_uint8(self.combine_alpha_source0)
+            dg.add_uint8(self.combine_alpha_operand0)
+            dg.add_uint8(self.combine_alpha_source1)
+            dg.add_uint8(self.combine_alpha_operand1)
+            dg.add_uint8(self.combine_alpha_source2)
+            dg.add_uint8(self.combine_alpha_operand2)
 
 
 TextureStage.default = TextureStage("default")
