@@ -15,7 +15,15 @@ class GeomEnums:
     NT_uint8 = 0
     NT_uint16 = 1
     NT_uint32 = 2
+    NT_packed_dcba = 3,
+    NT_packed_dabc = 4,
     NT_float32 = 5
+    NT_float64 = 6
+    NT_stdfloat = 7
+    NT_int8 = 8
+    NT_int16 = 9
+    NT_int32 = 10
+    NT_packed_ufloat = 11
 
     SM_uniform = 0
     SM_smooth = 1
@@ -30,6 +38,8 @@ class GeomEnums:
     C_color = 5
     C_index = 6
     C_morph_delta = 7
+    C_matrix = 8
+    C_normal = 9
 
 
 
