@@ -69,7 +69,7 @@ class GeomVertexArrayFormat(TypedWritableReferenceCount):
         dg.add_uint16(self.total_bytes)
         dg.add_uint8(self.pad_to)
 
-        if manager.file_version >= (6, 36):
+        if manager.file_version >= (6, 37):
             dg.add_uint16(self.divisor)
 
         dg.add_uint16(len(self.columns))

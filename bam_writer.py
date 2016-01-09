@@ -4,7 +4,7 @@ from collections import deque
 from array import array
 import sys
 
-BAM_VERSION = (6, 30)
+BAM_VERSION = (6, 39)
 
 BOC_push = 0
 BOC_pop = 1
