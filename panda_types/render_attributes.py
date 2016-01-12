@@ -18,15 +18,20 @@ class TransparencyAttrib(RenderAttrib):
     M_binary = 5
     M_dual = 6
 
-    def __init__(self):
+    def __init__(self, mode):
         super().__init__()
 
-        self.mode = self.M_none
+        self.mode = mode
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
         dg.add_int8(self.mode)
+
+TransparencyAttrib.none = TransparencyAttrib(TransparencyAttrib.M_none)
+TransparencyAttrib.alpha = TransparencyAttrib(TransparencyAttrib.M_alpha)
+TransparencyAttrib.multisample_mask = TransparencyAttrib(TransparencyAttrib.M_multisample_mask)
+TransparencyAttrib.binary = TransparencyAttrib(TransparencyAttrib.M_binary)
 
 
 class ColorAttrib(RenderAttrib):
@@ -147,3 +152,85 @@ class TexMatrixAttrib(RenderAttrib):
             manager.write_pointer(dg, stage_node.stage)
             manager.write_pointer(dg, stage_node.transform)
             dg.add_int32(stage_node.override)
+
+
+class CullFaceAttrib(RenderAttrib):
+
+    M_cull_none = 0
+    M_cull_clockwise = 1
+    M_cull_counter_clockwise = 2
+    M_cull_unchanged = 3
+
+    def __init__(self, mode, reverse=False):
+        super().__init__()
+        self.mode = mode
+        self.reverse = reverse
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_int8(self.mode)
+        dg.add_bool(self.reverse)
+
+CullFaceAttrib.cull_none = CullFaceAttrib(CullFaceAttrib.M_cull_none)
+
+
+class AntialiasAttrib(RenderAttrib):
+
+    M_none        = 0x0000
+    M_point       = 0x0001
+    M_line        = 0x0002
+    M_polygon     = 0x0004
+    M_multisample = 0x0008
+    M_auto        = 0x001f
+    M_type_mask   = 0x001f
+
+    M_faster      = 0x0020
+    M_better      = 0x0040
+    M_dont_care   = 0x0060
+
+    __slots__ = 'mode',
+
+    def __init__(self, mode):
+        super().__init__()
+        self.mode = mode
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint16(self.mode)
+
+AntialiasAttrib.none = AntialiasAttrib(AntialiasAttrib.M_none)
+AntialiasAttrib.multisample = AntialiasAttrib(AntialiasAttrib.M_multisample)
+
+
+class ColorBlendAttrib(RenderAttrib):
+
+    M_none = 0
+    M_add = 1
+    M_subtract = 2
+    M_inv_subtract = 3
+    M_min = 4
+    M_max = 5
+
+    __slots__ = 'mode', 'a', 'b', 'color'
+
+    def __init__(self, mode, a=1, b=1, color=(0, 0, 0, 0)):
+        super().__init__()
+
+        self.mode = mode
+        self.a = 1
+        self.b = 1
+        self.color = color
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint8(self.mode)
+        dg.add_uint8(self.a)
+        dg.add_uint8(self.b)
+        dg.add_vec4(self.color)
+
+
+ColorBlendAttrib.none = ColorBlendAttrib(ColorBlendAttrib.M_none)
+ColorBlendAttrib.add = ColorBlendAttrib(ColorBlendAttrib.M_add)
