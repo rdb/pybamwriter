@@ -74,5 +74,39 @@ class ModelNode(PandaNode):
         dg.add_uint8(0) # PT_none
         dg.add_uint16(0)
 
+
 class ModelRoot(ModelNode):
     pass
+
+
+class LODNode(PandaNode):
+
+    def __init__(self, name):
+        super().__init__(name)
+
+        self.center = (0, 0, 0)
+        self.switches = []
+
+    def add_switch(self, in_dist, out_dist):
+        """
+        The sense of in vs. out distances is as if the object were coming
+        towards you from far away: it switches "in" at the far distance,
+        and switches "out" at the close distance.  Thus, "in" should be
+        larger than "out".
+        """
+        assert in_dist >= out_dist
+
+        self.switches.append((in_dist, out_dist))
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        assert len(self.children) == len(self.switches), \
+            "Number of LOD switches must match the number of children."
+
+        dg.add_vec3(self.center)
+        dg.add_uint16(len(self.switches))
+
+        for in_dist, out_dist in self.switches:
+            dg.add_stdfloat(in_dist)
+            dg.add_stdfloat(out_dist)
