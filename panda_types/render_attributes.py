@@ -234,3 +234,35 @@ class ColorBlendAttrib(RenderAttrib):
 
 ColorBlendAttrib.none = ColorBlendAttrib(ColorBlendAttrib.M_none)
 ColorBlendAttrib.add = ColorBlendAttrib(ColorBlendAttrib.M_add)
+
+
+class RenderModeAttrib(RenderAttrib):
+
+    M_unchanged = 0
+    M_filled = 1
+    M_wireframe = 2
+    M_point = 3
+    M_filled_flat = 4
+    M_filled_wireframe = 5
+
+    __slots__ = 'mode', 'thickness', 'perspective', 'wireframe_color'
+
+    def __init__(self, mode, thickness=1, perspective=False, wireframe_color=(0, 0, 0, 0)):
+        super().__init__()
+
+        self.mode = mode
+        self.thickness = thickness
+        self.perspective = perspective
+        self.wireframe_color = wireframe_color
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_int8(self.mode)
+        dg.add_stdfloat(self.thickness)
+        dg.add_bool(self.perspective)
+
+        if self.mode == RenderModeAttrib.M_filled_wireframe:
+            dg.add_vec4(self.wireframe_color)
+
+RenderModeAttrib.wireframe = RenderModeAttrib(RenderModeAttrib.M_wireframe, 1, False)
