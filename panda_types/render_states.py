@@ -4,6 +4,8 @@ from .typed_objects import NodeCachedReferenceCount
 
 class RenderState(NodeCachedReferenceCount):
 
+    __slots__ = 'attributes',
+
     def __init__(self, *args):
         super().__init__()
 
@@ -21,6 +23,8 @@ RenderState.empty = RenderState()
 
 
 class TransformState(NodeCachedReferenceCount):
+
+    __slots__ = 'pos', 'quat', 'hpr', 'scale', 'shear', 'mat'
 
     def __init__(self):
         super().__init__()

@@ -1,26 +1,26 @@
 
-
 class TypedObject(object):
-    pass
+    __slots__ = ()
 
 
 class TypedWritable(TypedObject):
+    __slots__ = ()
 
     def write_datagram(self, manager, dg):
         pass
 
 
 class TypedWritableReferenceCount(TypedWritable):
-    pass
+    __slots__ = ()
 
 
 class CachedTypedWritableReferenceCount(TypedWritableReferenceCount):
-    pass
+    __slots__ = ()
 
 
 class CopyOnWriteObject(CachedTypedWritableReferenceCount):
-    pass
+    __slots__ = ()
 
 
 class NodeCachedReferenceCount(CachedTypedWritableReferenceCount):
-    pass
+    __slots__ = ()

@@ -5,6 +5,10 @@ class Material(TypedWritableReferenceCount):
 
     """ To use metalness workflow, set metallic to something other than None """
 
+    __slots__ = ('name', 'ambient', 'diffuse', 'specular', 'emission', 'shininess',
+                 'local', 'twoside', 'attrib_lock', 'roughness', 'metallic',
+                 'base_color', 'refractive_index')
+
     def __init__(self, name=""):
         super().__init__()
         self.name = str(name)

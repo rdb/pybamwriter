@@ -26,6 +26,8 @@ class Light:
 
 class LightNode(Light, PandaNode):
 
+    __slots__ = ()
+
     def __init__(self, name):
         PandaNode.__init__(self, name)
         Light.__init__(self)
@@ -36,4 +38,5 @@ class LightNode(Light, PandaNode):
 
 
 class AmbientLight(LightNode):
-    pass
+    
+    __slots__ = ()

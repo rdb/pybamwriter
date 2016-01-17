@@ -4,6 +4,10 @@ from .geom import GeomEnums
 
 class SamplerState(object):
 
+    __slots__ = ('wrap_u', 'wrap_v', 'wrap_w', 'minfilter', 'magfilter',
+                 'anisotropic_degree', 'border_color', 'min_lod', 'max_lod',
+                 'lod_bias')
+
     FT_nearest = 0
     FT_linear = 1
     FT_nearest_mipmap_nearest = 2
@@ -66,7 +70,6 @@ class TextureStage(TypedWritableReferenceCount):
     M_selector = 14
     M_normal_gloss = 15
 
-
     CM_undefined = 0
     CM_replace = 1
     CM_modulate = 2
@@ -74,7 +77,6 @@ class TextureStage(TypedWritableReferenceCount):
     CM_add_signed = 4
     CM_interpolate = 5
     CM_subtract = 6
-
 
     CS_undefined = 0
     CS_texture = 1
@@ -90,15 +92,24 @@ class TextureStage(TypedWritableReferenceCount):
     CO_src_alpha = 3
     CO_one_minus_src_alpha = 4
 
+    __slots__ = ('default', 'name', 'sort', 'priority', 'texcoord_name', 'mode', 
+                 'color', 'rgb_scale', 'alpha_scale', 'saved_result',
+                 'tex_view_offset', 'combine_rgb_mode', 'num_combine_rgb_operands',
+                 'combine_rgb_source0', 'combine_rgb_operand0', 'combine_rgb_source1',
+                 'combine_rgb_operand1', 'combine_rgb_source2', 'combine_rgb_operand2',
+                 'combine_alpha_mode', 'num_combine_alpha_operands',
+                 'combine_alpha_source0', 'combine_alpha_operand0',
+                 'combine_alpha_source1', 'combine_alpha_operand1',
+                 'combine_alpha_source2', 'combine_alpha_operand2')
 
-    def __init__(self, name="Stage"):
+    def __init__(self, name='Stage'):
         super().__init__()
         self.default = False
         self.name = name
         self.sort = 0
         self.priority = 0
 
-        self.texcoord_name = "texcoord"
+        self.texcoord_name = 'texcoord'
         self.mode = self.M_modulate
         self.color = (1, 1, 1, 1)
         self.rgb_scale = 1
@@ -167,7 +178,7 @@ class TextureStage(TypedWritableReferenceCount):
             dg.add_uint8(self.combine_alpha_operand2)
 
 
-TextureStage.default = TextureStage("default")
+TextureStage.default = TextureStage('default')
 
 class Texture(TypedWritableReferenceCount):
 
@@ -214,14 +225,23 @@ class Texture(TypedWritableReferenceCount):
     ATS_pad = 3
     ATS_unspecified = 4
 
+    __slots__ = ('name', 'has_rawdata', 'filename', 'alpha_filename',
+                 'primary_file_num_channels', 'alpha_file_channel', 'texture_type', 
+                 'has_read_mipmaps', 'compression', 'quality_level', 'format',
+                 'num_components', 'usage_hint', 'auto_texture_scale',
+                 'orig_file_x_size', 'orig_file_y_size', 'has_simple_ram_image',
+                 'simple_x_size', 'simple_y_size', 'simple_image_date_generated',
+                 'simple_ram_image_size', 'simple_ram_image', 'x_size', 'y_size',
+                 'z_size', 'pad_x_size', 'pad_y_size', 'pad_z_size', 'num_views', 'component_type', 'component_width', 'ram_image_compression',
+                 'ram_images', 'default_sampler')    
 
-    def __init__(self, name=""):
+    def __init__(self, name=''):
         super().__init__()
 
         self.name = name
         self.has_rawdata = False
-        self.filename = ""
-        self.alpha_filename = ""
+        self.filename = ''
+        self.alpha_filename = ''
         self.primary_file_num_channels = 0
         self.alpha_file_channel = 0
         self.texture_type = self.TT_2d_texture

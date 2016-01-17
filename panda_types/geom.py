@@ -6,6 +6,9 @@ from .render_states import RenderState
 from collections import namedtuple
 
 class GeomEnums:
+
+    __slots__ = ()
+
     UH_client = 0
     UH_stream = 1
     UH_dynamic = 2
@@ -42,12 +45,13 @@ class GeomEnums:
     C_normal = 9
 
 
-
 GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", 
     "numeric_type", "contents", "start", "column_alignment"))
 
 
 class GeomVertexArrayFormat(TypedWritableReferenceCount):
+
+    __slots__ = 'stride', 'total_bytes', 'pad_to', 'divisor', 'columns'
 
     def __init__(self):
         super().__init__()
@@ -86,6 +90,8 @@ class GeomVertexArrayFormat(TypedWritableReferenceCount):
 
 class GeomVertexArrayData(CopyOnWriteObject):
 
+    __slots__ = 'array_format', 'usage_hint', 'buffer'
+
     def __init__(self, array_format, usage_hint):
         super().__init__()
 
@@ -106,6 +112,8 @@ class GeomVertexArrayData(CopyOnWriteObject):
 
 class GeomVertexFormat(TypedWritableReferenceCount):
 
+    __slots__ = 'arrays',
+
     def __init__(self, *args):
         super().__init__()
 
@@ -125,6 +133,9 @@ class GeomVertexFormat(TypedWritableReferenceCount):
             manager.write_pointer(dg, array)
 
 class GeomVertexData(CopyOnWriteObject):
+
+    __slots__ = ('name', 'format', 'usage_hint', 'arrays', 'transform_table',
+                 'transform_blend_table', 'slider_table')
 
     def __init__(self, name, vertex_format, usage_hint):
         super().__init__()
@@ -162,6 +173,8 @@ class Geom(CopyOnWriteObject):
     PT_points = 3
     PT_patches = 4
 
+    __slots__ = 'data', 'primitives', 'primitive_type', 'shade_model', 'bounds_type'
+
     def __init__(self, vertex_data):
         super().__init__()
         self.data = vertex_data
@@ -191,6 +204,9 @@ class Geom(CopyOnWriteObject):
 
 class GeomPrimitive(CopyOnWriteObject):
 
+    __slots__ = ('shade_model', 'first_vertex', 'num_vertices', 'index_type',
+                 'usage_hint', 'vertices', 'ends')
+
     def __init__(self, usage_hint):
         super().__init__()
         self.shade_model = GeomEnums.SM_smooth
@@ -216,34 +232,36 @@ class GeomPrimitive(CopyOnWriteObject):
 
 
 class GeomPoints(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomLines(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomLinestrips(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomTriangles(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomTristrips(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomTrifans(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomTrifans(GeomPrimitive):
-    pass
+    __slots__ = ()
 
 
 class GeomPatches(GeomPrimitive):
+
+    __slots__ = 'num_vertices_per_patch',
 
     def __init__(self, num_vertices_per_patch, usage_hint):
         super().__init__(usage_hint)
@@ -257,6 +275,8 @@ class GeomPatches(GeomPrimitive):
 
 
 class GeomNode(PandaNode):
+
+    __slots__ = 'geoms'
 
     def __init__(self, name=""):
         super().__init__(name)
@@ -277,4 +297,3 @@ class GeomNode(PandaNode):
             assert isinstance(render_state, RenderState)
             manager.write_pointer(dg, geom)
             manager.write_pointer(dg, render_state)
-

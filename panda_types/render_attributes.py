@@ -6,9 +6,11 @@ from .render_states import TransformState
 
 
 class RenderAttrib(TypedWritableReferenceCount):
-    pass
+    __slots__ = ()
 
 class TransparencyAttrib(RenderAttrib):
+
+    __slots__ = 'mode',
 
     M_none = 0
     M_alpha = 1
@@ -36,6 +38,8 @@ TransparencyAttrib.binary = TransparencyAttrib(TransparencyAttrib.M_binary)
 
 class ColorAttrib(RenderAttrib):
 
+    __slots__ = 'type', 'color'
+
     T_vertex = 0
     T_flat = 1
     T_off = 2
@@ -58,6 +62,8 @@ ColorAttrib.vertex = ColorAttrib(ColorAttrib.T_vertex)
 
 class MaterialAttrib(RenderAttrib):
 
+    __slots__ 'material',
+
     def __init__(self, material=None):
         super().__init__()
 
@@ -74,6 +80,10 @@ class TextureAttrib(RenderAttrib):
 
     # textureAttrib.h:StageNode
     class StageNode:
+        
+        __slots__ = ('sampler', 'stage', 'texture', 'ff_tc_index',
+                     'implicit_sort', 'override')
+
         def __init__(self):
             self.sampler = None
             self.stage = None
@@ -81,6 +91,8 @@ class TextureAttrib(RenderAttrib):
             self.ff_tc_index = 0
             self.implicit_sort = 0
             self.override = 0
+
+    __slots__ = 'off_all_stages', 'off_stage_nodes', 'on_stage_nodes'
 
     def __init__(self):
         super().__init__()
@@ -127,10 +139,15 @@ class TextureAttrib(RenderAttrib):
 class TexMatrixAttrib(RenderAttrib):
 
     class StageNode:
+        
+        __slots__ = 'stage', 'transform', 'override'
+
         def __init__(self, stage=None, transform=None, override=0):
             self.stage = stage
             self.transform = transform
             self.override = override
+
+    __slots__ = 'stages',
 
     def __init__(self):
         super().__init__()
@@ -160,6 +177,8 @@ class CullFaceAttrib(RenderAttrib):
     M_cull_clockwise = 1
     M_cull_counter_clockwise = 2
     M_cull_unchanged = 3
+
+    __slots__ = 'mode', 'reverse'
 
     def __init__(self, mode, reverse=False):
         super().__init__()
@@ -269,6 +288,8 @@ RenderModeAttrib.wireframe = RenderModeAttrib(RenderModeAttrib.M_wireframe, 1, F
 
 
 class LightAttrib(RenderAttrib):
+
+    __slots__ = 'off_all_lights', 'off_lights', 'on_lights'
 
     def __init__(self):
         self.off_all_lights = False

@@ -5,6 +5,10 @@ from .render_effects import RenderEffects
 
 class PandaNode(TypedWritable):
 
+    __slots__ = ('name', 'state', 'transform', 'effects', 'draw_control_mask',
+                 'draw_show_mask', 'into_collide_mask', 'bounds_type', 'tags',
+                 'parents', 'children', 'stashed')
+
     def __init__(self, name=""):
         super().__init__()
         self.name = name
@@ -68,6 +72,8 @@ class PandaNode(TypedWritable):
 
 class ModelNode(PandaNode):
 
+    __slots__ = ()
+
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
@@ -76,10 +82,13 @@ class ModelNode(PandaNode):
 
 
 class ModelRoot(ModelNode):
-    pass
+    
+    __slots__ = ()
 
 
 class LODNode(PandaNode):
+
+    __slots__ = 'center', 'switches'
 
     def __init__(self, name):
         super().__init__(name)

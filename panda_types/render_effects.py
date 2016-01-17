@@ -3,6 +3,8 @@ from .typed_objects import TypedWritableReferenceCount
 
 class RenderEffects(TypedWritableReferenceCount):
 
+    __slots__ = 'effects',
+
     def __init__(self):
         super().__init__()
 
@@ -20,12 +22,17 @@ RenderEffects.empty = RenderEffects()
 
 
 class RenderEffect(TypedWritableReferenceCount):
-    pass
+    
+    __slots__ = ()
 
 
 class BillboardEffect(TypedWritableReferenceCount):
 
-    def __init__(self, up_vector, eye_relative, axial_rotate, offset=0, look_at_point=(0, 0, 0)):
+    __slots__ = ('off', 'up_vector', 'eye_relative', 'axial_rotate', 'offset',
+                 'look_at_point')
+
+    def __init__(self, up_vector, eye_relative, axial_rotate, offset=0,
+                 look_at_point=(0, 0, 0)):
         super().__init__()
 
         self.off = False
@@ -48,7 +55,6 @@ class BillboardEffect(TypedWritableReferenceCount):
 BillboardEffect.axis = BillboardEffect((0, 0, 1), False, True)
 BillboardEffect.point_eye = BillboardEffect((0, 0, 1), True, False)
 BillboardEffect.point_world = BillboardEffect((0, 0, 1), False, False)
-
 
 # Pre-made RenderEffects for use in bam exporter
 RenderEffects.billboard_axis = RenderEffects()
