@@ -1,4 +1,4 @@
- 
+
 from .typed_objects import TypedWritableReferenceCount
 from .texture import SamplerState, TextureStage, Texture
 from .material import Material
@@ -94,7 +94,7 @@ class TextureAttrib(RenderAttrib):
 
         dg.add_bool(self.off_all_stages)
         dg.add_uint16(len(self.off_stage_nodes))
-        
+
         for stage_node in self.off_stage_nodes:
             assert isinstance(stage_node, TextureAttrib.StageNode)
             assert isinstance(stage_node.stage, TextureStage)
@@ -105,7 +105,7 @@ class TextureAttrib(RenderAttrib):
         for stage_node in self.on_stage_nodes:
             assert isinstance(stage_node, TextureAttrib.StageNode)
             assert isinstance(stage_node.stage, TextureStage)
-            assert isinstance(stage_node.texture, Texture) 
+            assert isinstance(stage_node.texture, Texture)
 
             manager.write_pointer(dg, stage_node.stage)
             manager.write_pointer(dg, stage_node.texture)
@@ -266,3 +266,38 @@ class RenderModeAttrib(RenderAttrib):
             dg.add_vec4(self.wireframe_color)
 
 RenderModeAttrib.wireframe = RenderModeAttrib(RenderModeAttrib.M_wireframe, 1, False)
+
+
+class LightAttrib(RenderAttrib):
+
+    def __init__(self):
+        self.off_all_lights = False
+        self.off_lights = set()
+        self.on_lights = set()
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_bool(self.off_all_lights)
+
+        dg.add_uint16(len(self.off_lights))
+        for light in self.off_lights:
+            if manager.file_version >= (6, 40):
+                #TODO: support NodePath to support instanced lights
+                manager.write_pointer(dg, light)
+                manager.write_pointer(dg, None)
+            else:
+                manager.write_pointer(dg, light)
+
+        dg.add_uint16(len(self.on_lights))
+        for light in self.on_lights:
+            if manager.file_version >= (6, 40):
+                #TODO: support NodePath to support instanced lights
+                manager.write_pointer(dg, light)
+                manager.write_pointer(dg, None)
+            else:
+                manager.write_pointer(dg, light)
+
+
+LightAttrib.off = LightAttrib()
+LightAttrib.off_all_lights = True
