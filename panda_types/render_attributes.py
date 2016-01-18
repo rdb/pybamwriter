@@ -62,7 +62,7 @@ ColorAttrib.vertex = ColorAttrib(ColorAttrib.T_vertex)
 
 class MaterialAttrib(RenderAttrib):
 
-    __slots__ 'material',
+    __slots__ = 'material',
 
     def __init__(self, material=None):
         super().__init__()
@@ -80,10 +80,6 @@ class TextureAttrib(RenderAttrib):
 
     # textureAttrib.h:StageNode
     class StageNode:
-        
-        __slots__ = ('sampler', 'stage', 'texture', 'ff_tc_index',
-                     'implicit_sort', 'override')
-
         def __init__(self):
             self.sampler = None
             self.stage = None
