@@ -22,7 +22,7 @@ RenderEffects.empty = RenderEffects()
 
 
 class RenderEffect(TypedWritableReferenceCount):
-    
+
     __slots__ = ()
 
 

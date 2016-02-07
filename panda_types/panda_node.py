@@ -82,7 +82,7 @@ class ModelNode(PandaNode):
 
 
 class ModelRoot(ModelNode):
-    
+
     __slots__ = ()
 
 

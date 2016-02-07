@@ -1,4 +1,4 @@
- 
+
 from .typed_objects import TypedWritableReferenceCount
 from .geom import GeomEnums
 
@@ -101,7 +101,7 @@ class TextureStage(TypedWritableReferenceCount):
         self.rgb_scale = 1
         self.alpha_scale = 1
         self.saved_result = False
-        self.tex_view_offset = 0 
+        self.tex_view_offset = 0
 
         self.combine_rgb_mode = self.CM_undefined
         self.num_combine_rgb_operands = 0
@@ -135,7 +135,7 @@ class TextureStage(TypedWritableReferenceCount):
             dg.add_int32(self.priority)
 
             manager.write_internal_name(dg, self.texcoord_name)
-            
+
             dg.add_uint8(self.mode)
             dg.add_vec4(self.color)
             dg.add_uint8(self.rgb_scale)
@@ -144,7 +144,7 @@ class TextureStage(TypedWritableReferenceCount):
 
             if manager.file_version >= (6, 26):
                 dg.add_int32(self.tex_view_offset)
-            
+
             dg.add_uint8(self.combine_rgb_mode)
             dg.add_uint8(self.num_combine_rgb_operands)
             dg.add_uint8(self.combine_rgb_source0)
@@ -273,7 +273,7 @@ class Texture(TypedWritableReferenceCount):
 
         if manager.file_version >= (6, 1):
             dg.add_uint8(self.compression)
-        
+
         if manager.file_version >= (6, 16):
             dg.add_uint8(self.quality_level)
 
@@ -318,7 +318,7 @@ class Texture(TypedWritableReferenceCount):
 
             if manager.file_version >= (6, 1):
                 dg.add_uint8(self.ram_image_compression)
-            
+
             if manager.file_version >= (6, 3):
                 dg.add_uint8(len(self.ram_images))
 

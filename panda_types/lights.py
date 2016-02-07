@@ -38,5 +38,5 @@ class LightNode(Light, PandaNode):
 
 
 class AmbientLight(LightNode):
-    
+
     __slots__ = ()

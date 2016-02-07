@@ -135,7 +135,7 @@ class TextureAttrib(RenderAttrib):
 class TexMatrixAttrib(RenderAttrib):
 
     class StageNode:
-        
+
         __slots__ = 'stage', 'transform', 'override'
 
         def __init__(self, stage=None, transform=None, override=0):

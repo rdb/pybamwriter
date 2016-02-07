@@ -45,7 +45,7 @@ class GeomEnums:
     C_normal = 9
 
 
-GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components", 
+GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components",
     "numeric_type", "contents", "start", "column_alignment"))
 
 
