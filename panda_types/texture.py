@@ -182,9 +182,12 @@ class Texture(TypedWritableReferenceCount):
     T_int = 4
 
     # Only the most important formats supported here
+    F_red = 3
     F_alpha = 6
     F_rgb = 7
     F_rgba = 12
+    F_luminance = 18
+    F_luminance_alpha = 19
     F_rgba16 = 21
     F_rgba32 = 22
     F_r16 = 27
@@ -195,6 +198,7 @@ class Texture(TypedWritableReferenceCount):
     F_r32 = 35
     F_rg32 = 36
     F_rgb32 = 37
+    F_rg = 45
 
     CM_default = 0
     CM_off = 1
