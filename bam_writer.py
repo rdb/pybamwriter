@@ -4,7 +4,7 @@ from collections import deque
 from array import array
 import sys
 
-BAM_VERSION = (6, 39)
+BAM_VERSION = (6, 41)
 
 BOC_push = 0
 BOC_pop = 1
@@ -62,6 +62,15 @@ class BamWriter(object):
         self.write_header(header)
         self.target.write(bytes(header))
 
+    def open_socket(self, host, port):
+        import socket
+        conn = socket.create_connection((host, port))
+        self.target = conn.makefile('wb')
+
+        header = Datagram()
+        self.write_header(header)
+        self.target.write(bytes(header))
+
     def close(self):
         self.target.close()
 
@@ -89,17 +98,27 @@ class BamWriter(object):
         remaining objects will all be written recursively by
         the first object. """
 
+        self.write_objects((object,))
+
+    def write_objects(self, objects):
+        """ Like write_object, but writes more than one object. """
+
+        if len(objects) == 0:
+            return
+
         assert len(self.object_queue) == 0
         self.next_boc = BOC_push
 
-        object_id = self.__enqueue_object(object)
-        assert object_id != 0
+        for object in objects:
+            object_id = self.__enqueue_object(object)
+            assert object_id != 0
         self.__flush_queue()
 
         # Finally, write the closing pop.
         dg = Datagram()
         dg.add_uint8(BOC_pop)
         self.target.write(bytes(dg))
+        self.target.flush()
 
     def has_object(self, object):
         """ Returns true if the object has previously been
@@ -161,6 +180,10 @@ class BamWriter(object):
             self.__write_pta_id(packet, pta_id)
 
     def write_handle(self, packet, type_handle):
+        if type_handle is None:
+            packet.add_uint16(0)
+            return
+
         index = self.type_map.get(type_handle)
         if not index:
             # Assign a unique type index to this type.
@@ -261,12 +284,13 @@ class BamWriter(object):
 
             object_id = self.object_map[object]
 
-            if object_id not in self.objects_written:
+            if object_id not in self.objects_written or object.modified:
                 self.write_handle(dg, type(object))
                 self.__write_object_id(dg, object_id)
 
                 object.write_datagram(self, dg)
                 self.objects_written.add(object_id)
+                object.modified = False
 
             else:
                 # If we've already written this object, write it out with

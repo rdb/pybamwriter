@@ -4,7 +4,11 @@ class TypedObject(object):
 
 
 class TypedWritable(TypedObject):
-    __slots__ = ()
+
+    __slots__ = 'modified',
+
+    def __init__(self):
+        self.modified = False
 
     def write_datagram(self, manager, dg):
         pass
