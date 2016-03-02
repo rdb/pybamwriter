@@ -7,3 +7,4 @@ from .panda_node import *
 from .geom import *
 from .texture import *
 from .render_attributes import *
+from .lights import *

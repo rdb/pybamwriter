@@ -2,7 +2,8 @@ from .panda_node import PandaNode
 
 class Light:
 
-    __slots__ = 'color', 'color_temperature', 'priority'
+    # Can't use slots due to multiple inheritance here
+    # __slots__ = 'color', 'color_temperature', 'priority'
 
     def __init__(self):
         self.color = (1, 1, 1, 1)
@@ -23,6 +24,54 @@ class Light:
 
         dg.add_int32(self.priority)
 
+class LensNode(PandaNode):
+
+    __slots__ = ('lens',)
+
+    def __init__(self, name="", lens=None):
+        super().__init__(name)
+        self.lens = lens
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+        manager.write_pointer(dg, self.lens)
+
+
+class Camera(LensNode):
+
+    __slots__ = ('camera_mask', 'active')
+
+    def __init__(self, name="", lens=None):
+        super().__init__(name, lens)
+        self.camera_mask = 0x0
+        self.active = False
+
+    def write_datagram(self, manager, dg):
+        LensNode.write_datagram(self, manager, dg)
+
+        dg.add_bool(self.active)
+        dg.add_uint32(self.camera_mask)
+
+class LightLensNode(Camera, Light):
+
+    __slots__ = ('shadow_caster', 'sb_xsize', 'sb_ysize', 'sb_sort')
+
+    def __init__(self, name="", lens=None):
+        Light.__init__(self)
+        Camera.__init__(self, name, lens)
+        self.shadow_caster = False
+        self.sb_xsize = 512
+        self.sb_ysize = 512
+        self.sb_sort = -10
+
+    def write_datagram(self, manager, dg):
+        Camera.write_datagram(self, manager, dg)
+        Light.write_datagram(self, manager, dg)
+
+        dg.add_bool(self.shadow_caster)
+        dg.add_int32(self.sb_xsize)
+        dg.add_int32(self.sb_ysize)
+        dg.add_int32(self.sb_sort)
 
 class LightNode(Light, PandaNode):
 
@@ -36,7 +85,28 @@ class LightNode(Light, PandaNode):
         PandaNode.write_datagram(self, manager, dg)
         Light.write_datagram(self, manager, dg)
 
-
 class AmbientLight(LightNode):
 
     __slots__ = ()
+
+class PointLight(LightLensNode):
+
+    __slots__ = ('specular_color', 'attenuation', 'point')
+
+    def __init__(self, name=""):
+        LightLensNode.__init__(self, name, None)
+        self.has_specular_color = False
+        self.specular_color = (0, 0, 0, 0)
+        self.attenuation = (0, 0, 0)
+        self.point = (0, 0, 0)
+
+
+    def write_datagram(self, manager, dg):
+        LightLensNode.write_datagram(self, manager, dg)
+
+        if manager.file_version >= (6, 39):
+            dg.add_bool(self.has_specular_color)
+
+        dg.add_vec4(self.specular_color)
+        dg.add_vec3(self.attenuation)
+        dg.add_vec3(self.point)
