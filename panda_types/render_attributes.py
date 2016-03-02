@@ -80,6 +80,10 @@ class TextureAttrib(RenderAttrib):
 
     # textureAttrib.h:StageNode
     class StageNode:
+
+        __slots__ = ('sampler', 'stage', 'texture', 'ff_tc_index',
+                     'implicit_sort', 'override')
+
         def __init__(self):
             self.sampler = None
             self.stage = None
@@ -317,4 +321,4 @@ class LightAttrib(RenderAttrib):
 
 
 LightAttrib.off = LightAttrib()
-LightAttrib.off_all_lights = True
+LightAttrib.off.off_all_lights = True

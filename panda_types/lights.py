@@ -2,8 +2,6 @@ from .panda_node import PandaNode
 
 class Light:
 
-    __slots__ = 'color', 'color_temperature', 'priority'
-
     def __init__(self):
         self.color = (1, 1, 1, 1)
         self.color_temperature = None
