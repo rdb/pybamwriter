@@ -1,4 +1,5 @@
-from .panda_node import PandaNode
+
+from .panda_node import PandaNode, LensNode, Camera
 
 class Light:
 
@@ -21,33 +22,6 @@ class Light:
 
         dg.add_int32(self.priority)
 
-class LensNode(PandaNode):
-
-    __slots__ = ('lens',)
-
-    def __init__(self, name="", lens=None):
-        super().__init__(name)
-        self.lens = lens
-
-    def write_datagram(self, manager, dg):
-        super().write_datagram(manager, dg)
-        manager.write_pointer(dg, self.lens)
-
-
-class Camera(LensNode):
-
-    __slots__ = ('camera_mask', 'active')
-
-    def __init__(self, name="", lens=None):
-        super().__init__(name, lens)
-        self.camera_mask = 0x0
-        self.active = False
-
-    def write_datagram(self, manager, dg):
-        LensNode.write_datagram(self, manager, dg)
-
-        dg.add_bool(self.active)
-        dg.add_uint32(self.camera_mask)
 
 class LightLensNode(Camera, Light):
 
@@ -96,7 +70,7 @@ class PointLight(LightLensNode):
         self.specular_color = (0, 0, 0, 0)
         self.attenuation = (0, 0, 0)
         self.point = (0, 0, 0)
-
+        self.max_distance = 30.0
 
     def write_datagram(self, manager, dg):
         LightLensNode.write_datagram(self, manager, dg)
@@ -106,4 +80,8 @@ class PointLight(LightLensNode):
 
         dg.add_vec4(self.specular_color)
         dg.add_vec3(self.attenuation)
+
+        if manager.file_version >= (6, 41):
+            dg.add_stdfloat(self.max_distance)
+
         dg.add_vec3(self.point)
