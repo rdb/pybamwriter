@@ -85,3 +85,26 @@ class PointLight(LightLensNode):
             dg.add_stdfloat(self.max_distance)
 
         dg.add_vec3(self.point)
+
+class Spotlight(LightLensNode):
+
+    def __init__(self, name=""):
+        LightLensNode.__init__(self, name, None)
+        self.has_specular_color = False
+        self.exponent = 50.0
+        self.specular_color = (0, 0, 0, 0)
+        self.attenuation = (0, 0, 0)
+        self.max_distance = 30.0
+
+    def write_datagram(self, manager, dg):
+        LightLensNode.write_datagram(self, manager, dg)
+
+        if manager.file_version >= (6, 39):
+            dg.add_bool(self.has_specular_color)
+
+        dg.add_stdfloat(self.exponent)
+        dg.add_vec4(self.specular_color)
+        dg.add_vec3(self.attenuation)
+
+        if manager.file_version >= (6, 41):
+            dg.add_stdfloat(self.max_distance)
