@@ -229,7 +229,7 @@ class ColorBlendAttrib(RenderAttrib):
     M_min = 4
     M_max = 5
 
-    __slots__ = 'mode', 'a', 'b', 'color'
+    __slots__ = 'mode', 'a', 'b', 'color', 'alpha_mode', 'alpha_a', 'alpha_b'
 
     def __init__(self, mode, a=1, b=1, color=(0, 0, 0, 0)):
         super().__init__()
@@ -238,6 +238,9 @@ class ColorBlendAttrib(RenderAttrib):
         self.a = 1
         self.b = 1
         self.color = color
+        self.alpha_mode = self.mode
+        self.alpha_a = self.a
+        self.alpha_b = self.b
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
@@ -245,6 +248,13 @@ class ColorBlendAttrib(RenderAttrib):
         dg.add_uint8(self.mode)
         dg.add_uint8(self.a)
         dg.add_uint8(self.b)
+
+        if manager.file_version >= (6, 42):
+            # Write alpha settings.
+            dg.add_uint8(self.alpha_mode)
+            dg.add_uint8(self.alpha_a)
+            dg.add_uint8(self.alpha_b)
+
         dg.add_vec4(self.color)
 
 
