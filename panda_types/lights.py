@@ -108,3 +108,15 @@ class Spotlight(LightLensNode):
 
         if manager.file_version >= (6, 41):
             dg.add_stdfloat(self.max_distance)
+
+class SphereLight(PointLight):
+
+    __slots__ = ('radius')
+
+    def __init__(self, name=""):
+        PointLight.__init__(self, name)
+        self.radius = 0.01
+
+    def write_datagram(self, manager, dg):
+        PointLight.write_datagram(self, manager, dg)
+        dg.add_stdfloat(self.radius)
