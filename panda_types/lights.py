@@ -120,3 +120,15 @@ class SphereLight(PointLight):
     def write_datagram(self, manager, dg):
         PointLight.write_datagram(self, manager, dg)
         dg.add_stdfloat(self.radius)
+
+class RectangleLight(LightLensNode):
+
+    __slots__ = ('max_distance')
+
+    def __init__(self, name=""):
+        LightLensNode.__init__(self, name)
+        self.max_distance = 30.0
+
+    def write_datagram(self, manager, dg):
+        LightLensNode.write_datagram(self, manager, dg)
+        dg.add_stdfloat(self.max_distance)
