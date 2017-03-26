@@ -1,6 +1,7 @@
 
 from .typed_objects import TypedWritableReferenceCount, CopyOnWriteObject
 from .panda_node import PandaNode
+from .geom import VertexTransform
 
 
 class PartBundleNode(PandaNode):
@@ -23,10 +24,15 @@ class PartBundleNode(PandaNode):
 
 class Character(PartBundleNode):
 
-    __slots__ = ()
+    __slots__ = '_joints',
 
     def __init__(self, name):
         super().__init__(name, CharacterJointBundle(name))
+
+        self._joints = {}
+
+    def find_joint(self, name):
+        return self._joints.get(name)
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
@@ -123,6 +129,8 @@ class CharacterJoint(MovingPartMatrix):
     def __init__(self, character, root, parent, name, default_value):
         super().__init__(parent, name, default_value)
 
+        character._joints[name] = self
+
         self.character = character
         self.initial_net_transform_inverse = None
 
@@ -140,10 +148,6 @@ class CharacterJoint(MovingPartMatrix):
                 dg.add_stdfloat(self.initial_net_transform_inverse[j][i])
 
 
-class VertexTransform(TypedWritableReferenceCount):
-    pass
-
-
 class JointVertexTransform(VertexTransform):
 
     def __init__(self, joint):
@@ -156,36 +160,3 @@ class JointVertexTransform(VertexTransform):
 
         manager.write_pointer(dg, self.joint)
 
-
-class TransformBlend:
-
-    def __init__(self):
-        self._entries = []
-
-    def add_transform(self, transform, weight):
-        assert isinstance(transform, VertexTransform)
-        self._entries.append(transform, weight)
-
-    def write_datagram(self, manager, dg):
-        dg.add_uint16(len(self._entries))
-        for transform, weight in self._entries:
-            manager.write_pointer(dg, transform)
-            dg.add_stdfloat(weight)
-
-
-class TransformBlendTable(CopyOnWriteObject):
-
-    def __init__(self):
-        self.blends = []
-
-    def write_datagram(self, manager, dg):
-        super().write_datagram(manager, dg)
-
-        dg.add_uint16(len(self.blends))
-        for blend in self.blends:
-            blend.write_datagram(manager, dg)
-
-        if manager.file_version >= (6, 7):
-            #TODO SparseArray rows.  Currently setting to all-on.
-            dg.add_uint32(0)
-            dg.add_bool(True)

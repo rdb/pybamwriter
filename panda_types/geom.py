@@ -44,6 +44,10 @@ class GeomEnums:
     C_matrix = 8
     C_normal = 9
 
+    AT_none = 0
+    AT_panda = 1
+    AT_hardware = 2
+
 
 GeomVertexColumn = namedtuple("GeomVertexColumn", ("name", "num_components",
     "numeric_type", "contents", "start", "column_alignment"))
@@ -112,25 +116,29 @@ class GeomVertexArrayData(CopyOnWriteObject):
 
 class GeomVertexFormat(TypedWritableReferenceCount):
 
-    __slots__ = 'arrays',
+    __slots__ = 'arrays', 'animation_type', 'num_transforms', 'indexed_transforms'
 
     def __init__(self, *args):
         super().__init__()
 
         self.arrays = list(args)
 
+        self.animation_type = GeomEnums.AT_none
+        self.num_transforms = 0
+        self.indexed_transforms = False
+
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
 
-        #TODO: vertex animation spec
-        dg.add_uint8(0)
-        dg.add_uint16(0)
-        dg.add_bool(False)
+        dg.add_uint8(self.animation_type)
+        dg.add_uint16(self.num_transforms)
+        dg.add_bool(self.indexed_transforms)
 
         dg.add_uint16(len(self.arrays))
         for array in self.arrays:
             assert isinstance(array, GeomVertexArrayFormat)
             manager.write_pointer(dg, array)
+
 
 class GeomVertexData(CopyOnWriteObject):
 
@@ -297,3 +305,67 @@ class GeomNode(PandaNode):
             assert isinstance(render_state, RenderState)
             manager.write_pointer(dg, geom)
             manager.write_pointer(dg, render_state)
+
+
+class VertexTransform(TypedWritableReferenceCount):
+    pass
+
+
+class TransformBlend:
+
+    def __init__(self):
+        self._entries = []
+
+    def __hash__(self):
+        return hash(tuple(self._entries))
+
+    def __eq__(self, other):
+        return self._entries == other._entries
+
+    def __ne__(self, other):
+        return self._entries != other._entries
+
+    def add_transform(self, transform, weight):
+        assert isinstance(transform, VertexTransform)
+        self._entries.append((transform, weight))
+
+    def write_datagram(self, manager, dg):
+        dg.add_uint16(len(self._entries))
+        for transform, weight in self._entries:
+            manager.write_pointer(dg, transform)
+            dg.add_stdfloat(weight)
+
+
+class TransformBlendTable(CopyOnWriteObject):
+
+    def __init__(self):
+        self.blends = []
+        self._map = {}
+        self.rows = None
+
+    def add_blend(self, blend):
+        index = self._map.get(blend)
+        if not index:
+            index = len(self.blends)
+            self.blends.append(blend)
+            self._map[blend] = index
+        return index
+
+    def write_datagram(self, manager, dg):
+        super().write_datagram(manager, dg)
+
+        dg.add_uint16(len(self.blends))
+        for blend in self.blends:
+            blend.write_datagram(manager, dg)
+
+        if manager.file_version >= (6, 7):
+            # Really a SparseArray, but we assume either an infinite range or
+            # a half-open range from 0..self.rows
+            if self.rows is None:
+                dg.add_uint32(0)
+                dg.add_bool(True)
+            else:
+                dg.add_uint32(1)
+                dg.add_int32(0)
+                dg.add_int32(self.rows)
+                dg.add_bool(False)
