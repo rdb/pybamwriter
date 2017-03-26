@@ -8,3 +8,4 @@ from .geom import *
 from .texture import *
 from .render_attributes import *
 from .lights import *
+from .character import *
