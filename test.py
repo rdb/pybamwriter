@@ -13,7 +13,7 @@ if __name__ == '__main__':
     child1.transform.scale = (2, 2, 2)
     child1.transform.hpr = (90, 0, 180)
     child1.state = RenderState()
-    child1.state.attributes.append(TransparencyAttrib())
+    child1.state.attributes.append(TransparencyAttrib(TransparencyAttrib.M_alpha))
 
     material = Material("My Material")
     material.diffuse = (0.2, 0.6, 1.0, 1.0)
@@ -68,6 +68,13 @@ if __name__ == '__main__':
 
     child2.transform = TransformState()
     child2.transform.pos = (1, 0, 0)
+
+    cnode = CollisionNode("collide")
+    cnode.solids.append(CollisionSphere((1, 2, 3), 0.5))
+    cnode.solids.append(CollisionPolygon((1, 2, 3), (2, 2, 3), (1.5, 0, 3)))
+    cnode.from_collide_mask = 0b01
+    cnode.into_collide_mask = 0b10
+    child1.add_child(cnode)
 
     writer = BamWriter()
     writer.open_file('test.bam')

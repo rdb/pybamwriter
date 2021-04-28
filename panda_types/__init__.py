@@ -10,3 +10,4 @@ from .render_attributes import *
 from .lights import *
 from .character import *
 from .animation import *
+from .collide import *

@@ -289,6 +289,8 @@ class GeomNode(PandaNode):
     def __init__(self, name=""):
         super().__init__(name)
 
+        self.into_collide_mask = 0b100000000000000000000
+
         # Geoms should be a list of tuples, in the format (Geom, RenderState)
         self.geoms = []
 
