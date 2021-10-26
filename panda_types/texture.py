@@ -241,6 +241,7 @@ class Texture(TypedWritableReferenceCount):
         self.simple_image_date_generated = 0
         self.simple_ram_image_size = 0
         self.simple_ram_image = bytearray()
+        self.clear_color = None
 
         self.x_size = 0
         self.y_size = 1
@@ -302,6 +303,13 @@ class Texture(TypedWritableReferenceCount):
                 dg.add_int32(self.simple_image_date_generated)
                 dg.add_uint32(self.simple_ram_image_size)
                 # dg.append_data(self.simple_ram_image, self.simple_ram_image_size)
+
+        if manager.file_version >= (6, 45):
+            if self.clear_color is not None:
+                dg.add_bool(True)
+                dg.add_vec4(self.clear_color)
+            else:
+                dg.add_bool(False)
 
         # do_write_datagram_rawdata
         if self.has_rawdata:
