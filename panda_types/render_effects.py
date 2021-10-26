@@ -29,7 +29,7 @@ class RenderEffect(TypedWritableReferenceCount):
 class BillboardEffect(TypedWritableReferenceCount):
 
     __slots__ = ('off', 'up_vector', 'eye_relative', 'axial_rotate', 'offset',
-                 'look_at_point')
+                 'look_at', 'look_at_point', 'fixed_depth')
 
     def __init__(self, up_vector, eye_relative, axial_rotate, offset=0,
                  look_at_point=(0, 0, 0)):
@@ -40,7 +40,9 @@ class BillboardEffect(TypedWritableReferenceCount):
         self.eye_relative = eye_relative
         self.axial_rotate = axial_rotate
         self.offset = offset
+        self.look_at = None
         self.look_at_point = look_at_point
+        self.fixed_depth = False
 
     def write_datagram(self, manager, dg):
         super().write_datagram(manager, dg)
@@ -51,6 +53,11 @@ class BillboardEffect(TypedWritableReferenceCount):
         dg.add_bool(self.axial_rotate)
         dg.add_stdfloat(self.offset)
         dg.add_vec3(self.look_at_point)
+
+        if manager.file_version >= (6, 43):
+            #FIXME: Add look_at NodePath
+            manager.write_pointer(dg, None)
+            dg.add_bool(self.fixed_depth)
 
 BillboardEffect.axis = BillboardEffect((0, 0, 1), False, True)
 BillboardEffect.point_eye = BillboardEffect((0, 0, 1), True, False)
